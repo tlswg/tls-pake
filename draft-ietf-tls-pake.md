@@ -308,7 +308,8 @@ TLS must provide the following details:
 
 In addition, to be compatible with the security requirements of TLS
 1.3, PAKE protocols defined for use with TLS 1.3 MUST provide
-forward secrecy.
+forward secrecy and MUST be able to achieve key confirmation via TLS 1.3
+Finished messages.
 
 Several current PAKE protocols satisfy these requirements, for
 example:
