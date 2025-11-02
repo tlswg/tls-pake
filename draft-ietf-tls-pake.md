@@ -111,29 +111,8 @@ identities, even within a given server.
 
 # PAKE Integration in TLS
 
-This section describes how the PAKE protocol is integrated and executed
+This section describes how the PAKE protocols may be integrated and executed
 in the TLS handshake.
-
-## Generic Properties
-
-Each extension is specified separately, but they have several shared properties
-that are useful to cover at once. All PAKE extensions begin with the same two message flow.
-
-~~~
-enum {
-    pake_generic
-} ExtensionType;
-
-struct {
-    opaque    client_identity<0..2^16-1>;
-    opaque    server_identity<0..2^16-1>;
-    opaque    pake_message<1..2^16-1>;
-} PAKEClientHello
-
-struct {
-    opaque    pake_message<1..2^16-1>;
-} PAKEServerHello
-~~~
 
 ## Client Behavior
 
