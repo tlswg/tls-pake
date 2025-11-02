@@ -123,10 +123,14 @@ following extensions in the ClientHello:
 enum {
     pake_spake2plus(0xTODO),      (65536) // Classical, augmented
     pake_cpace(0xTODO),           (65537) // Classical, symmetric
+    pake_oquake(0xTODO),          (65538) // PQ, symmetric
+    pake_cpaceoquake(0xTODO),     (65539) // Hybrid, symmetric
+    pake_cpaceoquakeplus(0xTODO), (65540) // Hybrid, augmented
 } ExtensionType;
 ~~~
 
-The exact contents of these extensions will be specified individually, but they all contain the following information in the ClientHello:
+The exact contents and message flows of these extensions will be
+specified individually, but they all contain the following information in the ClientHello:
 
 ~~~
 struct {
@@ -271,12 +275,17 @@ In addition, to be compatible with the security requirements of TLS
 1.3, PAKE protocols defined for use with TLS 1.3 MUST provide
 forward secrecy.
 
-Several current PAKE protocols satisfy these requirements, for
-example:
+Several current PAKE protocols satisfy these requirements such as:
 
 * CPace {{!CPACE=I-D.irtf-cfrg-cpace}}
 * SPAKE2+ (described in {{spake2plus}}) {{!RFC9383}}
 * OPAQUE {{?OPAQUE=I-D.irtf-cfrg-opaque}}
+* OQUAKE {{!CPaceOQUAKEPlus=I-D.vos-cfrg-pqpake}}
+* CPaceOQUAKE* {{!CPaceOQUAKEPlus}}
+* CPaceOQUAKE+* {{!CPaceOQUAKEPlus}}
+
+(*) These protocols require alterations to the standard TLS 1.3 handshake.
+
 
 # SPAKE2+ Extension {#spake2plus}
 
@@ -402,6 +411,44 @@ specified in {{Section 7.1 of !TLS13=RFC8446}} or as the
 Specifically, `ISK || (EC)DHE` is used as the `(EC)DHE` input to the key
 schedule in {{Section 7.1 of !TLS13=RFC8446}}, as shown above in {{spake2plus-run}}.
 
+
+# OQUAKE Extension {#oquake}
+
+TODO
+
+## Protocol Setup {#oquake-setup}
+
+TODO
+
+## Protocol Execution {#oquake-run}
+
+TODO
+
+# CPaceOQUAKE Extension {#cpaceoquake}
+
+TODO
+
+## Protocol Setup {#cpaceoquake-setup}
+
+TODO
+
+## Protocol Execution {#cpaceoquake-run}
+
+TODO
+
+
+# CPaceOQUAKE+ Extension {#cpaceoquakeplus}
+
+TODO
+
+## Protocol Setup {#cpaceoquakeplus-setup}
+
+TODO
+
+## Protocol Execution {#cpaceoquakeplus-run}
+
+TODO
+
 # Privacy Considerations {#privacy}
 
 Client and server identities are sent in the clear in the PAKEClientHello extension.
@@ -487,6 +534,18 @@ which includes both the `shareP` and `shareV` values exchanged for SPAKE2+.
 extension in this document. Key confirmation is provided via TLS 1.3 Finished messages,
 satisfying the requirements in {{Section 9.4 of !CPACE=I-D.irtf-cfrg-cpace}}.
 
+## OQUAKE Security Considerations {#oquake-sec}
+
+TODO
+
+## CPaceOQUAKE Security Considerations {#cpaceoquake-sec}
+
+TODO
+
+## CPaceOQUAKE+ Security Considerations {#cpaceoquakeplus-sec}
+
+TODO
+
 # IANA Considerations
 
 This document requests that IANA add a value to the TLS
@@ -494,8 +553,11 @@ ExtensionType Registry with the following contents:
 
 | Value | Extension Name | TLS 1.3 | Reference |
 |:------|:---------------|:-------:|:---------:|
-| 0xTODO   | pake_spake2plus           | CH, SH  | (this document)  |
+| 0xTODO    | pake_spake2plus           | CH, SH  | (this document)  |
 | 0xTODO    | pake_cpace |  CH, SH | (this document) |
+| 0xTODO    | pake_oquake | CH, SH | (this document) |
+| 0xTODO    | pake_cpaceoquake | CH, SH | (this document) |
+| 0xTODO    | pake_cpaceoquakeplus | CH, SH \<new messages> | (this document) |
 
 [[ RFC EDITOR: Please replace "TODO" in the above table with the
 value assigned by IANA, and replace "(this document)" with the
