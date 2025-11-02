@@ -44,7 +44,7 @@ author:
 
 The pre-shared key mechanism available in TLS 1.3 is not suitable
 for usage with low-entropy keys, such as passwords entered by users.
-This document describes an extension that enables the use of
+This document describes extensions that enable the use of
 password-authenticated key exchange protocols with TLS 1.3.
 
 
@@ -78,17 +78,15 @@ the client and server share only a low-entropy secret.
 
 Enabling TLS to address this use case effectively requires the TLS
 handshake to execute a password-authenticated key establishment
-(PAKE) protocol. This document describes a TLS extension `pake`
-that can carry data necessary to execute a PAKE.
+(PAKE) protocol. This document describes TLS extensions for several
+PAKE algorithms to execute a PAKE.
 
-This extension is generic, in that it can be used to carry key
-exchange information for multiple different PAKEs. We assume that
-prior to the TLS handshake the client and server will both have
-knowledge of the password or PAKE-specific values derived from the
-password (e.g. augmented PAKEs only require one party to know the
+We assume that prior to the TLS handshake the client and server will
+both have knowledge of the password or PAKE-specific values derived
+from the password (e.g. augmented PAKEs only require one party to know the
 actual password). The choice of PAKE and any required parameters will
 be explicitly specified using IANA assigned values.
-This document defines concrete protocols for executing the
+This document defines extensions for executing the
 SPAKE2+ {{!RFC9383}} and CPACE {{!CPACE=I-D.irtf-cfrg-cpace}} PAKE protocols.
 
 # Terminology
@@ -101,7 +99,7 @@ throughout.
 
 # Setup
 
-In order to use the extension specified in this document, a TLS client
+In order to use the extensions specified in this document, a TLS client
 and server need to have pre-provisioned a password (or derived values
 as described by the desired PAKE protocol(s)). The details of this
 pre-provisioned information are specific to each PAKE algorithm and
@@ -116,44 +114,53 @@ identities, even within a given server.
 This section describes how the PAKE protocol is integrated and executed
 in the TLS handshake.
 
-## Client Behavior
+## Generic Properties
 
-To offer support for a PAKE protocol, the client sends a `pake` extension
-in the ClientHello carrying a `PAKEClientHello` value:
+Each extension is specified separately, but they have several shared properties
+that are useful to cover at once. All PAKE extensions begin with the same two message flow.
 
 ~~~
 enum {
-    pake(0xTODO), (65535)
+    pake_generic
 } ExtensionType;
-~~~
-
-The payload of the client extension has the following `PAKEClientHello`
-structure:
-
-~~~~~
-enum {
-    SPAKE2PLUS_V1 (0xXXXX),
-} PAKEScheme;
-
-struct {
-    PAKEScheme   pake_scheme;
-    opaque      pake_message<1..2^16-1>;
-} PAKEShare;
 
 struct {
     opaque    client_identity<0..2^16-1>;
     opaque    server_identity<0..2^16-1>;
-    PAKEShare client_shares<0..2^16-1>;
-} PAKEClientHello;
-~~~~~
+    opaque    pake_message<1..2^16-1>;
+} PAKEClientHello
+
+struct {
+    opaque    pake_message<1..2^16-1>;
+} PAKEServerHello
+~~~
+
+## Client Behavior
+
+To offer support for a PAKE protocol, the client sends one or more of the
+following extensions in the ClientHello:
+
+~~~
+enum {
+    pake_spake2plus(0xTODO),      (65536) // Classical, augmented
+    pake_cpace(0xTODO),           (65537) // Classical, symmetric
+} ExtensionType;
+~~~
+
+The exact contents of these extensions will be specified individually, but they all contain the following information in the ClientHello:
+
+~~~
+struct {
+    opaque    client_identity<0..2^16-1>;
+    opaque    server_identity<0..2^16-1>;
+    opaque    pake_message<1..2^16-1>;
+} PAKEClientHello
+~~~
 
 The `PAKEClientHello` structure consists of an identity pair under which the
-client can authenticate alongside a list of PAKE algorithms and the
-client's first message for each underlying PAKE protocol.
+client can authenticate alongside the client's first message for the
+extensions underlying PAKE protocol.
 Concretely, these structure fields are defined as follows:
-
-client_shares
-: A list of PAKEShare values, each one with a distinct PAKEScheme algorithm.
 
 client_identity
 : The client identity used for the PAKE. It may be empty.
@@ -161,48 +168,35 @@ client_identity
 server_identity
 : The server identity used for the PAKE. It may be empty.
 
-pake_scheme
-: The 2-byte identifier of the PAKE algorithm.
-
 pake_message
 : The client PAKE message used to initialize the protocol.
-
-The client and server identity fields are common to all PAKEShares to prevent
-client enumeration attacks; see {{security}}.
-
-The `PAKEScheme` field in the `PAKEShare` allows implementations to
-support multiple PAKEs and negotiate which to use in the context of
-the handshake. For instance, if a client knows a password but not which
-PAKE the server supports it could send corresponding PAKEShares for each
-PAKE. If the client sends multiple PAKEShare values, then they MUST
-be sorted in monotonically increasing order by the NamedPAKE value. Moreover,
-the client MUST NOT send more than one PAKEShare with the same NamedPAKE value.
 
 {{Section 9.2 of !TLS13=RFC8446}} specifies that a valid ClientHello
 must include either a `pre_shared_key` extension or both
 a `signature_algorithms` and `supported_groups` extension. With the
-addition of the `pake` extension specified here, the new requirement
+addition of the extensions specified here, the new requirement
 is that a valid ClientHello must satisfy at least one of the
 following options:
 
 * includes a `pre_shared_key` extension
 * includes `signature_algorithms`, `supported_groups`, and `key_share`  extensions
-* includes `pake`, `supported_groups`, and `key_share` extensions
+* includes one or more of the PAKE extensions specified here, `supported_groups`, and `key_share` extensions
 
-If a client sends the `pake` extension, then it MUST also send a `supported_groups` and
+If a client sends a PAKE extension, then it MUST also send a `supported_groups` and
 `key_share` extension. Like PSK-based authentication in psk_dhe_ke mode as defined in
-{{Section 4.2.0 of !TLS13=RFC8446}}, authentication with the `pake` extension
+{{Section 4.2.0 of !TLS13=RFC8446}}, authentication with a PAKE extension
 is always combined with the normal TLS key exchange mechanism. See {{key-sched-mods}} for details.
 
-Combining the `pake` extension with the normal TLS key exchange mechanism
+Combining a PAKE extension with the normal TLS key exchange mechanism
 using a hybrid or PQ key agreement protects against Harvest Now Decrypt
 Later Attacks where traffic recorded today may be decrypted by a Cryptographically
 Relevant Quantum Computer (CRQC) in the future.
 
-A client which sends both a `pake` and `signature_algorithms` extension indicates the client
-requires both PAKE authentication and standard server certificate authentication.
+A client which sends both a PAKE extension and `signature_algorithms`
+extension indicates the client requires both PAKE authentication and
+standard server certificate authentication.
 
-The client MAY also send a `pre_shared_key` extension along with the `pake` extension,
+The client MAY also send a `pre_shared_key` extension along with PAKE extensions,
 to allow the server to choose an authentication mode.
 
 The server identity value provided in the PAKEClientHello structure
@@ -211,40 +205,28 @@ ServerNameIndication (SNI) field.
 
 ## Server Behavior
 
-A server that receives a `pake` extension examines its contents to determine
-if it is well-formed. In particular, if the list of PAKEShare values is not
-sorted in monotonically increasing order by PAKEScheme values, or if there are
-duplicate PAKEScheme entries in this list, the server aborts the handshake with
-an "illegal_parameter" alert.
+A server that receives one or more PAKE extensions examines their contents to determine
+if they are well-formed. If multiple PAKE extensions are sent by the client, the
+server MUST pick its most preferred extension. The server SHOULD NOT inspect the
+contents of the extension (e.g. client or server identity values) before choosing which PAKE extension to use for authentication. Choosing based on client identities presented
+in different PAKE extensions may lead to enumeration attacks.
 
-If the list of PAKEShare values is well-formed, the server then scans the list
-of PAKEShare values to determine if there is one corresponding to a server
-supported PAKEScheme. If the server does not support any of the offered PAKESchemes
-in the client PAKEShares then the server MUST abort the protocol
-with an "illegal_parameter" alert.
-
-If the server has a PAKEScheme in common with the client then the server uses
-the client_identity and server_identity alongside its local database of PAKE
-registration information to determine if the request corresponds to a legitimate
-client registration record. If one does not
+If the server supports one of the PAKE extensions sent by the client then the server uses
+the client_identity and server_identity sent in the first message
+alongside its local database of PAKE registration information to determine if the request corresponds to a legitimate client registration record. If one does not
 exist, the server MAY simulate a PAKE response as described in {{simulation}}.
 Simulating a response prevents client enumeration attacks on the server's
 PAKE database; see {{security}}.
 
 If there exists a valid PAKE registration, the server indicates its selection
-by including a `pake` extension in its ServerHello. The content of this extension
-is a `PAKEServerHello` value, specifying the PAKE the server has selected, and the
-server's first message in the PAKE protocol. The format of this structure is as follows:
+by including a matching PAKE extension in its ServerHello. The content of this extension
+is a `PAKEServerHello` value including the server's first message in the PAKE protocol. The format of this structure is as follows:
 
 ~~~~~
 struct {
-    PAKEShare server_share;
+    opaque    pake_message<1..2^16-1>;
 } PAKEServerHello;
 ~~~~~
-
-The server_share value of this structure is a `PAKEShare`, which echoes
-back the PAKE algorithm chosen and the server's PAKE message generated
-in response to the client's PAKE message.
 
 If a server uses PAKE authentication, then it MUST NOT send an
 extension of type `pre_shared_key`, or `early_data`.
@@ -277,10 +259,9 @@ otherwise be sending data to an unauthenticated client.
 
 To simulate a fake PAKE response, the server does the following:
 
-* Select a PAKEScheme supported by the client and server, as normal.
-* Include the `pake` extension in its ServerHello, containing a PAKEShare value with
-the selected PAKEScheme and corresponding `pake_message`. To generate the `pake_message`
-for this `PAKEShare` value, the server selects a value uniformly at random from
+* Include the PAKE extension matching the preferred algorithm offered in
+the ClientHello in its ServerHello, containing a `pake_message`.
+To generate the `pake_message`, the server selects a value uniformly at random from
 the set of possible values of the PAKE algorithm shares.
 * Perform the rest of the protocol as normal.
 
@@ -294,16 +275,17 @@ anything beyond this fact.
 
 # Compatible PAKE Protocols
 
-In order to be usable with the `pake` extension, a PAKE protocol
-must specify some syntax for its messages, and the protocol itself
-must be compatible with the message flow described above.  A
+In order to be usable with the one of the PAKE extension, a PAKE protocol
+must specify some syntax for its messages. A
 specification describing the use of a particular PAKE protocol with
 TLS must provide the following details:
 
-* A `PAKEScheme` registered value indicating pre-provisioned parameters;
+* A new extension value indicating pre-provisioned parameters;
 * Content of the `pake_message` field in a ClientHello;
 * Content of the `pake_message` field in a ServerHello;
-* How the PAKE protocol is executed based on those messages; and
+* For PAKEs that take more than one round or otherwise necessitate alterations
+to the standard TLS 1.3 handshake, specify what alterations must occur.
+* How the PAKE protocol is executed based on handshake messages; and
 * How the outputs of the PAKE protocol are used to create the PAKE portion of the`(EC)DHE` input to the TLS key schedule.
 
 In addition, to be compatible with the security requirements of TLS
@@ -317,9 +299,9 @@ example:
 * SPAKE2+ (described in {{spake2plus}}) {{!RFC9383}}
 * OPAQUE {{?OPAQUE=I-D.irtf-cfrg-opaque}}
 
-# SPAKE2+ Integration {#spake2plus}
+# SPAKE2+ Extension {#spake2plus}
 
-This section describes the SPAKE2+ instantiation of the `pake` extension for TLS.
+This section describes the `pake_spake2plus` extension for TLS.
 The SPAKE2+ protocol is described in {{!SPAKE2PLUS=RFC9383}}.
 {{spake2plus-setup}} describes the setup required before the protocol runs,
 and {{spake2plus-run}} describes the protocol execution in TLS.
@@ -335,20 +317,19 @@ use this list when completing the SPAKE2+ protocol. The values for the password
 verifiers and registration records (w0, w1, and L) are not specified here; see
 {{Section 3.2 of SPAKE2PLUS}} for more information.
 
-The PAKEScheme value for SPAKE2+ fully defines the parameters associated with
+The `pake_spake2plus` extension  fully defines the parameters associated with
 the protocol, including the prime-order group `G`, cryptographic hash function `Hash`,
 key derivation function `KDF`, and message authentication code `MAC`. Additionally,
-the PAKEScheme value for SPAKE2+ fully defines the constants for M and N
+the `pake_spake2plus` extension fully defines the constants for M and N
 as needed for the protocol; see {{Section 4 of SPAKE2PLUS}}.
 
 ## Protocol Execution {#spake2plus-run}
 
-The content of one PAKEShare value in the PAKEClientHello structure consists
-of the PAKEScheme value `SPAKE2PLUS_V1` and the value `shareP` as computed in
-{{Section 3.3 of SPAKE2PLUS}}.
+The content of the `pake_message` value in the PAKEClientHello structure is the
+value `shareP` as computed in {{Section 3.3 of SPAKE2PLUS}}.
 
-The content of the server PAKEShare value in the PAKEServerHello structure
-consists of the PAKEScheme value `SPAKE2PLUS_V1` and the value `shareV || confirmV`,
+The content of the server `pake_message` value in the PAKEServerHello structure
+is the value `shareV || confirmV`,
 i.e., `shareV` and `confirmV` concatenated, as computed in {{Section 3.3 of SPAKE2PLUS}}.
 
 Given `shareP` and `shareV`, the client and server can then both compute
@@ -402,9 +383,9 @@ The client and server do not additionally compute or verify confirmP
 as described in {{Section 3.4 of SPAKE2PLUS}}.
 See {{spake2plus-sec}} for more information about the safety of this approach.
 
-# CPace Integration {#cpace}
+# CPace Extension {#cpace}
 
-This section describes the CPace instantiation of the `pake` extension for TLS.
+This section describes the `pake_cpace` extension for TLS.
 The CPace protocol is described in {{!CPACE=I-D.irtf-cfrg-cpace}}.
 {{cpace-setup}} describes the setup required before the protocol runs, and
 {{cpace-run}} describes the protocol execution in TLS.
@@ -418,18 +399,16 @@ password-related string (PRS). The associated data for both parties (`ADa` and
 identification strings, a channel identifier, and/or a session identifier, as
 described in {{Section 3.1 of !CPACE=I-D.irtf-cfrg-cpace}}.
 
-The PAKEScheme value for CPace specifies a cipher suite for the protocol,
+The `pake_cpace` extension specifies a cipher suite for the protocol,
 consisting of a group environment `G` and cryptographic hash function `H`.
 
 ## Protocol Execution {#cpace-run}
 
-The content of one PAKEShare value in the PAKEClientHello structure consists of
-the PAKEScheme value `CPACE_X25519_SHA512` and the value `Ya` as computed in
-{{Section 6.2 of !CPACE=I-D.irtf-cfrg-cpace}}.
+The content of the `pake_message` value in the PAKEClientHello structure is the
+value `Ya` as computed in {{Section 6.2 of !CPACE=I-D.irtf-cfrg-cpace}}.
 
-The content of the server PAKEShare value in the PAKEServerHello structure
-consists of the PAKEScheme value `CPACE_X25519_SHA512` and the value `Yb` as
-computed in {{Section 6.2 of !CPACE=I-D.irtf-cfrg-cpace}}.
+The content of the `pake_message` value in the PAKEServerHello structure is
+the value `Yb` as computed in {{Section 6.2 of !CPACE=I-D.irtf-cfrg-cpace}}.
 
 Given `Ya` and `Yb`, the client and server can then both compute `ISK`, the main output
 secret of the protocol as described in {{Section 6.2 of !CPACE=I-D.irtf-cfrg-cpace}}.
@@ -514,7 +493,7 @@ the client sends sensitive data to the server.
 
 ## SPAKE2+ Security Considerations {#spake2plus-sec}
 
-{{spake2plus}} describes how to integrate SPAKE2+ into TLS using the `pake`
+{{spake2plus}} describes how to integrate SPAKE2+ into TLS using the `pake_spake2plus`
 extension in this document. This integration deviates from the SPAKE2+
 protocol in {{SPAKE2PLUS}} in one important way: the explicit key confirmation
 checks required in {{SPAKE2PLUS}} are replaced with the TLS Finished messages.
@@ -525,7 +504,7 @@ which includes both the `shareP` and `shareV` values exchanged for SPAKE2+.
 
 ## CPace Security Considerations {#cpace-sec}
 
-{{cpace}} describes how to integrate CPace into TLS using the `pake`
+{{cpace}} describes how to integrate CPace into TLS using the `pake_cpace`
 extension in this document. Key confirmation is provided via TLS 1.3 Finished messages,
 satisfying the requirements in {{Section 9.4 of !CPACE=I-D.irtf-cfrg-cpace}}.
 
@@ -536,23 +515,14 @@ ExtensionType Registry with the following contents:
 
 | Value | Extension Name | TLS 1.3 | Reference |
 |:------|:---------------|:-------:|:---------:|
-| 0xTODO   | pake           | CH, SH  | (this document)  |
+| 0xTODO   | pake_spake2plus           | CH, SH  | (this document)  |
+| 0xTODO    | pake_cpace |  CH, SH | (this document) |
 
 [[ RFC EDITOR: Please replace "TODO" in the above table with the
 value assigned by IANA, and replace "(this document)" with the
 RFC number assigned to this document. ]]
 
-## PAKE Scheme registry
-
-This document requests that IANA create a new registry called
-"PAKE Schemes" with the following contents:
-
-| Value   | PAKEScheme | Reference | Notes |
-|:--------|:-----------|:---------:|:------|
-| 0xTODO  | SPAKE2PLUS_V1 | (this document) | N/A |
-| 0xTODO  | CPACE_X25519_SHA512 | (this document) | N/A |
-
-The SPAKE2PLUS_V1 PAKEScheme variant has the following parameters associated with it:
+The `pake_spake2plus` extension has the following parameters associated with it:
 
 * G: P-256
 * Hash: SHA256
@@ -570,7 +540,7 @@ N =
 03d8bbd6c639c62937b04d997f38c3770719c629d7014d49a24b4f98baa1292b49
 ~~~
 
-The CPACE_X25519_SHA512 PAKEScheme variant has the parameters for 'CPACE-X25519-SHA512'
+The `pake_cpace` variant has the parameters for 'CPACE-X25519-SHA512'
 as specified in {{Section 4 of !CPACE=I-D.irtf-cfrg-cpace}}.
 
 # Acknowledgments
@@ -582,6 +552,10 @@ document.
 
 # Change Log
 {:numbered="false"}
+
+Since draft-tls-pake-00
+
+* Switched to per-PAKE extensions
 
 Since draft-bmw-tls-pake13-02
 
