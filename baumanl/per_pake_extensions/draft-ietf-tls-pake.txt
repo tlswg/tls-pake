@@ -76,11 +76,10 @@ Table of Contents
    2.  Terminology
    3.  Setup
    4.  PAKE Integration in TLS
-     4.1.  Generic Properties
-     4.2.  Client Behavior
-     4.3.  Server Behavior
-     4.4.  Key Schedule Modifications
-     4.5.  Server Simulation
+     4.1.  Client Behavior
+     4.2.  Server Behavior
+     4.3.  Key Schedule Modifications
+     4.4.  Server Simulation
    5.  Compatible PAKE Protocols
    6.  SPAKE2+ Extension
      6.1.  Protocol Setup
@@ -167,30 +166,10 @@ Table of Contents
 
 4.  PAKE Integration in TLS
 
-   This section describes how the PAKE protocol is integrated and
+   This section describes how the PAKE protocols may be integrated and
    executed in the TLS handshake.
 
-4.1.  Generic Properties
-
-   Each extension is specified separately, but they have several shared
-   properties that are useful to cover at once.  All PAKE extensions
-   begin with the same two message flow.
-
-   enum {
-       pake_generic
-   } ExtensionType;
-
-   struct {
-       opaque    client_identity<0..2^16-1>;
-       opaque    server_identity<0..2^16-1>;
-       opaque    pake_message<1..2^16-1>;
-   } PAKEClientHello
-
-   struct {
-       opaque    pake_message<1..2^16-1>;
-   } PAKEServerHello
-
-4.2.  Client Behavior
+4.1.  Client Behavior
 
    To offer support for a PAKE protocol, the client sends one or more of
    the following extensions in the ClientHello:
@@ -243,7 +222,7 @@ Table of Contents
    supported_groups and key_share extension.  Like PSK-based
    authentication in psk_dhe_ke mode as defined in Section 4.2.0 of
    [TLS13], authentication with a PAKE extension is always combined with
-   the normal TLS key exchange mechanism.  See Section 4.4 for details.
+   the normal TLS key exchange mechanism.  See Section 4.3 for details.
 
    Combining a PAKE extension with the normal TLS key exchange mechanism
    using a hybrid or PQ key agreement protects against Harvest Now
@@ -262,7 +241,7 @@ Table of Contents
    are disjoint from that which the client may provide in the
    ServerNameIndication (SNI) field.
 
-4.3.  Server Behavior
+4.2.  Server Behavior
 
    A server that receives one or more PAKE extensions examines their
    contents to determine if they are well-formed.  If multiple PAKE
@@ -278,7 +257,7 @@ Table of Contents
    the first message alongside its local database of PAKE registration
    information to determine if the request corresponds to a legitimate
    client registration record.  If one does not exist, the server MAY
-   simulate a PAKE response as described in Section 4.5.  Simulating a
+   simulate a PAKE response as described in Section 4.4.  Simulating a
    response prevents client enumeration attacks on the server's PAKE
    database; see Section 9.
 
@@ -304,7 +283,7 @@ Table of Contents
    Section 9 for a discussion on different security considerations
    depending on if certificates are used or not.
 
-4.4.  Key Schedule Modifications
+4.3.  Key Schedule Modifications
 
    When the client and server agree on a PAKE to use, a shared secret
    derived from the PAKE protocol is concatenated with the regular
@@ -321,7 +300,7 @@ Table of Contents
    received the client's Finished message, as it would otherwise be
    sending data to an unauthenticated client.
 
-4.5.  Server Simulation
+4.4.  Server Simulation
 
    To simulate a fake PAKE response, the server does the following:
 
@@ -570,7 +549,7 @@ Table of Contents
    identity is unrecognized, the server MAY simulate the protocol as if
    an identity was recognized, but the password was incorrect.  This is
    similar to the procedure outlined in [RFC5054].  The simulation
-   mechanism is described in Section 4.5.
+   mechanism is described in Section 4.4.
 
 9.3.  Ramifications of low entropy secret compromise
 
