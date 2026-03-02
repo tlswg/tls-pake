@@ -1553,41 +1553,44 @@ anything beyond this fact.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-compatible-pake-protocols" class="section-name selfRef">Compatible PAKE Protocols</a>
       </h2>
 <p id="section-5-1">In order to be usable with the <code>pake</code> extension, a PAKE protocol
-must specify some syntax for its messages, and the protocol itself
-must be compatible with the message flow described above.  A
-specification describing the use of a particular PAKE protocol with
-TLS must provide the following details:<a href="#section-5-1" class="pilcrow">¶</a></p>
+must specify some syntax for its messages, and the PAKE protocol
+<span class="bcp14">MUST</span> produce a shared secret in exactly two messages carried in the ClientHello
+and ServerHello. PAKE protocols that require more than two messages to derive a shared secret
+are not compatible with this extension.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">In addition, to be compatible with the security requirements of TLS
+1.3, PAKE protocols defined for use with TLS 1.3 <span class="bcp14">MUST</span> provide
+forward secrecy and <span class="bcp14">MUST</span> be able to achieve key confirmation via TLS 1.3
+Finished messages.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">A specification describing the use of a particular PAKE protocol with
+TLS must provide the following details:<a href="#section-5-3" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5-2.1">
-          <p id="section-5-2.1.1">A <code>PAKEScheme</code> registered value indicating pre-provisioned parameters;<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5-4.1">
+          <p id="section-5-4.1.1">A <code>PAKEScheme</code> registered value indicating pre-provisioned parameters;<a href="#section-5-4.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-2.2">
-          <p id="section-5-2.2.1">Content of the <code>pake_message</code> field in a ClientHello;<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-4.2">
+          <p id="section-5-4.2.1">Content of the <code>pake_message</code> field in a ClientHello;<a href="#section-5-4.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-2.3">
-          <p id="section-5-2.3.1">Content of the <code>pake_message</code> field in a ServerHello;<a href="#section-5-2.3.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-4.3">
+          <p id="section-5-4.3.1">Content of the <code>pake_message</code> field in a ServerHello;<a href="#section-5-4.3.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-2.4">
-          <p id="section-5-2.4.1">How the PAKE protocol is executed based on those messages; and<a href="#section-5-2.4.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-4.4">
+          <p id="section-5-4.4.1">How the PAKE protocol is executed based on those messages; and<a href="#section-5-4.4.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-2.5">
-          <p id="section-5-2.5.1">How the outputs of the PAKE protocol are used to create the PAKE portion of the<code>(EC)DHE</code> input to the TLS key schedule.<a href="#section-5-2.5.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-4.5">
+          <p id="section-5-4.5.1">How the outputs of the PAKE protocol are used to create the PAKE portion of the<code>(EC)DHE</code> input to the TLS key schedule.<a href="#section-5-4.5.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-5-3">In addition, to be compatible with the security requirements of TLS
-1.3, PAKE protocols defined for use with TLS 1.3 <span class="bcp14">MUST</span> provide
-forward secrecy.<a href="#section-5-3" class="pilcrow">¶</a></p>
-<p id="section-5-4">Several current PAKE protocols satisfy these requirements, for
-example:<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">Several current PAKE protocols satisfy these requirements, for
+example:<a href="#section-5-5" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5-5.1">
-          <p id="section-5-5.1.1">CPace <span>[<a href="#CPACE" class="cite xref">CPACE</a>]</span><a href="#section-5-5.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5-6.1">
+          <p id="section-5-6.1.1">CPace <span>[<a href="#CPACE" class="cite xref">CPACE</a>]</span><a href="#section-5-6.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-5.2">
-          <p id="section-5-5.2.1">SPAKE2+ (described in <a href="#spake2plus" class="auto internal xref">Section 6</a>) <span>[<a href="#RFC9383" class="cite xref">RFC9383</a>]</span><a href="#section-5-5.2.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-6.2">
+          <p id="section-5-6.2.1">SPAKE2+ (described in <a href="#spake2plus" class="auto internal xref">Section 6</a>) <span>[<a href="#RFC9383" class="cite xref">RFC9383</a>]</span><a href="#section-5-6.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-5.3">
-          <p id="section-5-5.3.1">OPAQUE <span>[<a href="#OPAQUE" class="cite xref">OPAQUE</a>]</span><a href="#section-5-5.3.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-5-6.3">
+          <p id="section-5-6.3.1">OPAQUE <span>[<a href="#OPAQUE" class="cite xref">OPAQUE</a>]</span><a href="#section-5-6.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
