@@ -23,14 +23,14 @@ password-authenticated key exchange protocols with TLS 1.3.
     Python 3.12.12
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
-    intervaltree 3.1.0
+    intervaltree 3.2.1
     Jinja2 3.1.6
-    lxml 5.3.1
-    platformdirs 4.5.0
+    lxml 6.0.2
+    platformdirs 4.5.1
     pycountry 24.6.1
-    PyYAML 6.0.2
+    PyYAML 6.0.3
     requests 2.32.5
-    wcwidth 0.2.14
+    wcwidth 0.3.0
 -->
 <link href="draft-ietf-tls-pake.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -171,7 +171,7 @@ password-authenticated key exchange protocols with TLS 1.3.
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
   font-family: 'Oxygen Mono';
@@ -179,7 +179,8 @@ password-authenticated key exchange protocols with TLS 1.3.
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 }
 
 @font-face {
@@ -571,6 +572,7 @@ aside, blockquote {
 }
 blockquote {
   margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
 }
 cite {
   display: block;
@@ -641,7 +643,7 @@ a.pilcrow {
   }
 }
 @media not print {
-  :hover > a.pilcrow {
+  :hover > a.pilcrow, a.pilcrow:focus {
     opacity: 1;
   }
   a.pilcrow[href]:hover {
@@ -1049,11 +1051,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">TLS 1.3 PAKE</td>
-<td class="right">October 2025</td>
+<td class="right">March 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Bauman, et al.</td>
-<td class="center">Expires 23 April 2026</td>
+<td class="center">Expires 3 September 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1066,12 +1068,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-tls-pake-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-10-20" class="published">20 October 2025</time>
+<time datetime="2026-03-02" class="published">2 March 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-04-23">23 April 2026</time></dd>
+<dd class="expires"><time datetime="2026-09-03">3 September 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1136,7 +1138,7 @@ password-authenticated key exchange protocols with TLS 1.3.<a href="#section-abs
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 23 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 3 September 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1145,7 +1147,7 @@ password-authenticated key exchange protocols with TLS 1.3.<a href="#section-abs
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2025 IETF Trust and the persons identified as the
+            Copyright (c) 2026 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1367,6 +1369,7 @@ structure:<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 <pre>
 enum {
     SPAKE2PLUS_V1 (0xXXXX),
+    CPACE_X25519_SHA512 (0xXXXX),
 } PAKEScheme;
 
 struct {
@@ -1708,7 +1711,7 @@ the CPace specification, respectively. The client and server must share a
 password-related string (PRS). The associated data for both parties (<code>ADa</code> and
 <code>ADb</code>) is unused. The client and server may optionally be configured with party
 identification strings, a channel identifier, and/or a session identifier, as
-described in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-15#section-3.1" class="relref">Section 3.1</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+described in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-18#section-3.1" class="relref">Section 3.1</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
 <p id="section-7.1-2">The PAKEScheme value for CPace specifies a cipher suite for the protocol,
 consisting of a group environment <code>G</code> and cryptographic hash function <code>H</code>.<a href="#section-7.1-2" class="pilcrow">¶</a></p>
 </section>
@@ -1720,12 +1723,12 @@ consisting of a group environment <code>G</code> and cryptographic hash function
         </h3>
 <p id="section-7.2-1">The content of one PAKEShare value in the PAKEClientHello structure consists of
 the PAKEScheme value <code>CPACE_X25519_SHA512</code> and the value <code>Ya</code> as computed in
-<span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-15#section-6.2" class="relref">Section 6.2</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-18#section-6.2" class="relref">Section 6.2</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
 <p id="section-7.2-2">The content of the server PAKEShare value in the PAKEServerHello structure
 consists of the PAKEScheme value <code>CPACE_X25519_SHA512</code> and the value <code>Yb</code> as
-computed in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-15#section-6.2" class="relref">Section 6.2</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+computed in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-18#section-6.2" class="relref">Section 6.2</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
 <p id="section-7.2-3">Given <code>Ya</code> and <code>Yb</code>, the client and server can then both compute <code>ISK</code>, the main output
-secret of the protocol as described in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-15#section-6.2" class="relref">Section 6.2</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.
+secret of the protocol as described in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-18#section-6.2" class="relref">Section 6.2</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.
 The various optional CPace inputs (party identification strings, channel
 identifiers, and session identifiers) may be specified by the application, and
 will contribute to the derivation of <code>ISK</code>.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
@@ -1841,7 +1844,7 @@ which includes both the <code>shareP</code> and <code>shareV</code> values excha
         </h3>
 <p id="section-9.5-1"><a href="#cpace" class="auto internal xref">Section 7</a> describes how to integrate CPace into TLS using the <code>pake</code>
 extension in this document. Key confirmation is provided via TLS 1.3 Finished messages,
-satisfying the requirements in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-15#section-9.4" class="relref">Section 9.4</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-9.5-1" class="pilcrow">¶</a></p>
+satisfying the requirements in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-18#section-9.4" class="relref">Section 9.4</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-9.5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1934,7 +1937,7 @@ N =
 </pre><a href="#section-10.1-6" class="pilcrow">¶</a>
 </div>
 <p id="section-10.1-7">The CPACE_X25519_SHA512 PAKEScheme variant has the parameters for 'CPACE-X25519-SHA512'
-as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-15#section-4" class="relref">Section 4</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-10.1-7" class="pilcrow">¶</a></p>
+as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-18#section-4" class="relref">Section 4</a> of [<a href="#CPACE" class="cite xref">CPACE</a>]</span>.<a href="#section-10.1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1987,7 +1990,7 @@ document.<a href="#section-11-1" class="pilcrow">¶</a></p>
 <dl class="references">
 <dt id="CPACE">[CPACE]</dt>
         <dd>
-<span class="refAuthor">Abdalla, M.</span>, <span class="refAuthor">Haase, B.</span>, and <span class="refAuthor">J. Hesse</span>, <span class="refTitle">"CPace, a balanced composable PAKE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-cpace-15</span>, <time datetime="2025-10-17" class="refDate">17 October 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-15">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-15</a>&gt;</span>. </dd>
+<span class="refAuthor">Abdalla, M.</span>, <span class="refAuthor">Haase, B.</span>, and <span class="refAuthor">J. Hesse</span>, <span class="refTitle">"CPace, a balanced composable PAKE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-cpace-18</span>, <time datetime="2026-02-01" class="refDate">1 February 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-18">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-18</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-tls-hybrid-design">[I-D.ietf-tls-hybrid-design]</dt>
         <dd>
