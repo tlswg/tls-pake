@@ -266,6 +266,17 @@ Table of Contents
 
 4.2.  Server Behavior
 
+   If a server receives a ClientHello with a pake extension, but without
+   both asupported_group and key_share extension it MUST abort the
+   connection with a "missing_extension" alert.
+
+   If a server receives a ClientHello with a pake extension and
+   pre_shared_key extension then it must choose an authentication
+   mechanism.  In cases where client enumeration is a risk, servers
+   SHOULD NOT inspect the offered client_identity fields in the pake
+   extension when deciding between PAKE or PSK authentication since this
+   could be used as an client enumeration tool.
+
    A server that receives a pake extension examines its contents to
    determine if it is well-formed.  In particular, if the list of
    PAKEShare values is not sorted in monotonically increasing order by
