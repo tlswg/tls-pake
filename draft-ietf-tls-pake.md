@@ -133,6 +133,7 @@ structure:
 ~~~~~
 enum {
     SPAKE2PLUS_V1 (0xXXXX),
+    CPACE_X25519_SHA512 (0xXXXX),
 } PAKEScheme;
 
 struct {
