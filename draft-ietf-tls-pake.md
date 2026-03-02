@@ -353,8 +353,10 @@ i.e., `shareV` and `confirmV` concatenated, as computed in {{Section 3.3 of SPAK
 
 Given `shareP` and `shareV`, the client and server can then both compute
 K_main, the root secret in the protocol as described in {{Section 3.4 of SPAKE2PLUS}}.
-The "Context" value for SPAKE2+ may be specified by the application to include additional
-context in the protocol transcript or left empty. See {{Section 3 of SPAKE2PLUS}}. The rest of
+The "Context" value for SPAKE2+ is equal to `tls || application_context` where
+`application_context` is either an empty string or a string that may be specified by
+the protocol using tls to include additional context in the protocol transcript.
+See {{Section 3 of SPAKE2PLUS}}. The rest of
 the values needed for the transcript derivation are as configured in {{spake2plus-setup}},
 exchanged over the wire, or computed by client and server.
 
