@@ -305,9 +305,18 @@ anything beyond this fact.
 # Compatible PAKE Protocols
 
 In order to be usable with the `pake` extension, a PAKE protocol
-must specify some syntax for its messages, and the protocol itself
-must be compatible with the message flow described above.  A
-specification describing the use of a particular PAKE protocol with
+must specify some syntax for its messages, and the PAKE protocol
+MUST produce a shared secret in exactly two messages carried in the ClientHello
+and ServerHello. PAKE protocols that require more than two messages to derive a shared secret
+are not compatible with this extension.
+
+In addition, to be compatible with the security requirements of TLS
+1.3, PAKE protocols defined for use with TLS 1.3 MUST provide
+forward secrecy and MUST be able to achieve key confirmation via TLS 1.3
+Finished messages.
+
+
+A specification describing the use of a particular PAKE protocol with
 TLS must provide the following details:
 
 * A `PAKEScheme` registered value indicating pre-provisioned parameters;
@@ -315,10 +324,6 @@ TLS must provide the following details:
 * Content of the `pake_message` field in a ServerHello;
 * How the PAKE protocol is executed based on those messages; and
 * How the outputs of the PAKE protocol are used to create the PAKE portion of the`(EC)DHE` input to the TLS key schedule.
-
-In addition, to be compatible with the security requirements of TLS
-1.3, PAKE protocols defined for use with TLS 1.3 MUST provide
-forward secrecy.
 
 Several current PAKE protocols satisfy these requirements, for
 example:
