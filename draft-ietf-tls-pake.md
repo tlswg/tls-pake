@@ -43,7 +43,7 @@ author:
 --- abstract
 
 The pre-shared key mechanism available in TLS 1.3 is not suitable
-for usage with low-entropy keys, such as passwords entered by users.
+for usage with low-entropy pre-shared secrets, such as passwords entered by users.
 This document describes an extension that enables the use of
 password-authenticated key exchange protocols with TLS 1.3.
 
@@ -58,7 +58,7 @@ not yet seen significant security analysis. See {{security}} and {{spake2plus-se
 for more information.
 
 In some applications, it is desirable to enable a client and server
-to authenticate to one another using a low-entropy pre-shared value,
+to authenticate to one another using a low-entropy pre-shared secret,
 such as a user-entered password.
 
 In prior versions of TLS, this functionality has been provided by
