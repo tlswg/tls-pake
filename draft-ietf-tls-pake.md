@@ -91,6 +91,42 @@ be explicitly specified using IANA assigned values.
 This document defines concrete protocols for executing the
 SPAKE2+ {{!RFC9383}} and CPACE {{!CPACE=I-D.irtf-cfrg-cpace}} PAKE protocols.
 
+## Use Cases
+
+Important use cases for password-based authentication are onboarding of new
+IoT devices onto a secured IP network, and/or joining such devices to a secured
+application domain.
+
+In such scenarios, the entry of the password by a user is the act that
+effectively authorizes the new device to join a particular network/domain.
+At the same time, the password provides the mutual authentication between
+the device and the network/domain for the first secure TLS session.
+Once this secure session is established, an onboarding protocol is performed
+to provision the new device with more permanent security credentials, typically
+not based on a password.
+
+A password-based initial approach is often required instead of other, more
+secure, alternatives due to a combination of constraints:
+
+* There may be no internet connectivity at the time of onboarding.
+* The network may not support PKI infrastructure: for example, a home network.
+* At manufacturing/sale time, there is no information about the target network or
+  domain that the IoT device is going to join. Therefore, a root of trust cannot
+  be pre-installed on the IoT device.
+* A user may perform the onboarding process from any device (such as a tablet or
+  smartphone) so that an authentication credential needs to be entered manually
+  on this device.
+  The credential is based on a reference source (e.g. a sticker on device
+  packaging, or an email).
+  Entering a full PSK is impractical for the user in this case.
+* The IoT device may not have any user interface suitable to enter a security
+  credential (such as a root of trust for the IP network/domain, or a PSK).
+
+Because IoT device standards evolve, while at the same time older devices must
+still be supported by a network/domain for multiple years, there is a specific
+requirement that a TLS endpoint needs to be able to simultaneously support
+multiple PAKE protocols.
+
 # Terminology
 
 {::boilerplate bcp14-tagged}
