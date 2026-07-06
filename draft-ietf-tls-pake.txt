@@ -5,11 +5,11 @@
 Transport Layer Security                                       L. Bauman
 Internet-Draft                                               Apple, Inc.
 Intended status: Informational                               D. Benjamin
-Expires: 3 September 2026                                     Google LLC
+Expires: 7 January 2027                                       Google LLC
                                                                 S. Menon
                                                               C. A. Wood
                                                              Apple, Inc.
-                                                            2 March 2026
+                                                             6 July 2026
 
 
       A Password Authenticated Key Exchange Extension for TLS 1.3
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 September 2026.
+   This Internet-Draft will expire on 7 January 2027.
 
 Copyright Notice
 
@@ -75,25 +75,46 @@ Table of Contents
    1.  Introduction
    2.  Terminology
    3.  Setup
-   4.  PAKE Integration in TLS
-     4.1.  Client Behavior
-     4.2.  Server Behavior
-     4.3.  Key Schedule Modifications
-     4.4.  Server Simulation
-   5.  Compatible PAKE Protocols
-   6.  SPAKE2+ Integration
-     6.1.  Protocol Setup
-     6.2.  Protocol Execution
-   7.  CPace Integration
-     7.1.  Protocol Setup
-     7.2.  Protocol Execution
+   4.  PAKE Protocol Classification
+   5.  Internal PAKE Integration in TLS
+     5.1.  Client Behavior
+     5.2.  Server Behavior
+     5.3.  Key Schedule Modifications
+     5.4.  Server Simulation
+   6.  Internal PAKE Protocol Specifications
+     6.1.  Requirements for Internal PAKEs
+     6.2.  SPAKE2+ Integration
+       6.2.1.  Protocol Setup
+       6.2.2.  Protocol Execution
+     6.3.  CPace Integration
+       6.3.1.  Protocol Setup
+       6.3.2.  Protocol Execution
+     6.4.  OQUAKE Integration
+       6.4.1.  Protocol Setup
+       6.4.2.  Protocol Execution
+     6.5.  OQUAKE+ Integration
+       6.5.1.  Protocol Setup
+       6.5.2.  Protocol Execution
+   7.  External PAKE Integration
+     7.1.  Overview
+     7.2.  General Framework
+     7.3.  CPaceOQUAKE+ Integration
+       7.3.1.  Overview
+       7.3.2.  Protocol Setup
+       7.3.3.  Protocol Execution
+       7.3.4.  Implementation Considerations
    8.  Privacy Considerations
    9.  Security Considerations
      9.1.  Dictionary attack mitigation
      9.2.  Protection of client identities
      9.3.  Ramifications of low entropy secret compromise
-     9.4.  SPAKE2+ Security Considerations
-     9.5.  CPace Security Considerations
+     9.4.  Internal PAKE Security Considerations
+       9.4.1.  SPAKE2+ Security Considerations
+       9.4.2.  CPace Security Considerations
+       9.4.3.  OQUAKE Security Considerations
+       9.4.4.  OQUAKE+ Security Considerations
+     9.5.  External PAKE Security Considerations
+       9.5.1.  CPaceOQUAKE+ Security Considerations
    10. IANA Considerations
      10.1.  PAKE Scheme registry
    Acknowledgments
@@ -108,7 +129,7 @@ Table of Contents
    DISCLAIMER: Much of this text is copied from [FIRST-DRAFT] and is in
    the process of being updated.  This is a work-in-progress draft and
    has not yet seen significant security analysis.  See Section 9 and
-   Section 9.4 for more information.
+   Section 9.4.1 for more information.
 
    In some applications, it is desirable to enable a client and server
    to authenticate to one another using a low-entropy pre-shared value,
@@ -142,7 +163,8 @@ Table of Contents
    actual password).  The choice of PAKE and any required parameters
    will be explicitly specified using IANA assigned values.  This
    document defines concrete protocols for executing the SPAKE2+
-   [RFC9383] and CPACE [CPACE] PAKE protocols.
+   [RFC9383], CPACE [CPACE], OQUAKE [PQPAKE], and OQUAKE+ [PQPAKE] PAKE
+   protocols.
 
 2.  Terminology
 
@@ -167,12 +189,34 @@ Table of Contents
    information for different clients.  Clients may also have multiple
    identities, even within a given server.
 
-4.  PAKE Integration in TLS
+4.  PAKE Protocol Classification
 
-   This section describes how the PAKE protocol is integrated and
-   executed in the TLS handshake.
+   This specification defines support for two classes of PAKE protocols:
 
-4.1.  Client Behavior
+   Internal PAKEs integrate directly into the TLS handshake, completing
+   authentication within two messages (ClientHello and ServerHello).
+   These PAKEs execute their protocol messages within the pake extension
+   and derive shared secrets that feed into the TLS key schedule.
+
+   External PAKEs require out-of-band execution prior to TLS connection
+   establishment.  These PAKEs complete their protocol exchange outside
+   of TLS and import their derived secrets as PSKs using External PSK
+   Import [RFC9258].
+
+   The following sections describe both approaches in detail.
+
+5.  Internal PAKE Integration in TLS
+
+   This section describes how Internal PAKE protocols are integrated and
+   executed within the TLS handshake using the pake extension.  Internal
+   PAKEs complete their authentication exchange within two messages
+   (ClientHello and ServerHello) and integrate their derived secrets
+   directly into the TLS key schedule.
+
+   For External PAKEs that execute out-of-band prior to TLS connection
+   establishment, see Section 7.
+
+5.1.  Client Behavior
 
    To offer support for a PAKE protocol, the client sends a pake
    extension in the ClientHello carrying a PAKEClientHello value:
@@ -187,6 +231,8 @@ Table of Contents
    enum {
        SPAKE2PLUS_V1 (0xXXXX),
        CPACE_X25519_SHA512 (0xXXXX),
+       OQUAKE_V1 (0xXXXX),
+       OQUAKE_PLUS_V1 (0xXXXX),
    } PAKEScheme;
 
    struct {
@@ -249,14 +295,25 @@ Table of Contents
    supported_groups and key_share extension.  Like PSK-based
    authentication in psk_dhe_ke mode as defined in Section 4.2.0 of
    [TLS13], authentication with the pake extension is always combined
-   with the normal TLS key exchange mechanism.  See Section 4.3 for
+   with the normal TLS key exchange mechanism.  See Section 5.3 for
    details.
 
    Combining the pake extension with the normal TLS key exchange
    mechanism using a hybrid or PQ key agreement protects against Harvest
    Now Decrypt Later Attacks where traffic recorded today may be
    decrypted by a Cryptographically Relevant Quantum Computer (CRQC) in
-   the future.
+   the future.  This protection covers the resulting _application
+   traffic_ regardless of which PAKEScheme is negotiated.  It does not,
+   by itself, protect the _password_: if the negotiated PAKEScheme is
+   purely classical (e.g., SPAKE2+ or CPace), a future CRQC that breaks
+   the scheme's underlying classical assumption can still retroactively
+   recover the password from the harvested pake extension messages,
+   independent of whether the surrounding TLS key exchange was hybrid or
+   PQ.  Deployments concerned with retroactive password recovery, as
+   opposed to only traffic confidentiality, should select a post-quantum
+   PAKEScheme, such as OQUAKE, OQUAKE+, or CPaceOQUAKE+; see the
+   Security Considerations of [PQPAKE] for a detailed treatment of this
+   distinction.
 
    A client which sends both a pake and signature_algorithms extension
    indicates the client requires both PAKE authentication and standard
@@ -269,7 +326,7 @@ Table of Contents
    are disjoint from that which the client may provide in the
    ServerNameIndication (SNI) field.
 
-4.2.  Server Behavior
+5.2.  Server Behavior
 
    If a server receives a ClientHello with a pake extension, but without
    both asupported_group and key_share extension it MUST abort the
@@ -301,7 +358,7 @@ Table of Contents
    local database of PAKE registration information to determine if the
    request corresponds to a legitimate client registration record.  If
    one does not exist, the server MAY simulate a PAKE response as
-   described in Section 4.4.  Simulating a response prevents client
+   described in Section 5.4.  Simulating a response prevents client
    enumeration attacks on the server's PAKE database; see Section 9.
 
    If there exists a valid PAKE registration, the server indicates its
@@ -330,13 +387,13 @@ Table of Contents
    Section 9 for a discussion on different security considerations
    depending on if certificates are used or not.
 
-4.3.  Key Schedule Modifications
+5.3.  Key Schedule Modifications
 
    When the client and server agree on a PAKE to use, a shared secret
    derived from the PAKE protocol is concatenated with the regular
    ECDH(E) input and used as part of the ECDH(E) input to the TLS 1.3
    key schedule.  Details for the shared secret computation are left to
-   the specific PAKE algorithm.  See Section 6 and Section 7 for
+   the specific PAKE algorithm.  See Section 6.2 and Section 6.3 for
    information about how the SPAKE2+ and CPace variants operate,
    respectively.
 
@@ -347,7 +404,7 @@ Table of Contents
    received the client's Finished message, as it would otherwise be
    sending data to an unauthenticated client.
 
-4.4.  Server Simulation
+5.4.  Server Simulation
 
    To simulate a fake PAKE response, the server does the following:
 
@@ -370,22 +427,24 @@ Table of Contents
    is correct.  If an attacker does not supply a correct pair, they do
    not learn anything beyond this fact.
 
-5.  Compatible PAKE Protocols
+6.  Internal PAKE Protocol Specifications
 
-   In order to be usable with the pake extension, a PAKE protocol must
-   specify some syntax for its messages, and the PAKE protocol MUST
-   produce a shared secret in exactly two messages carried in the
-   ClientHello and ServerHello.  PAKE protocols that require more than
-   two messages to derive a shared secret are not compatible with this
-   extension.
+6.1.  Requirements for Internal PAKEs
+
+   In order to be usable as Internal PAKEs with the pake extension, a
+   PAKE protocol must specify some syntax for its messages, and the PAKE
+   protocol MUST produce a shared secret in exactly two messages carried
+   in the ClientHello and ServerHello.  Internal PAKEs complete their
+   authentication exchange within the TLS handshake and cannot require
+   additional message rounds.
 
    In addition, to be compatible with the security requirements of TLS
-   1.3, PAKE protocols defined for use with TLS 1.3 MUST provide forward
-   secrecy and MUST be able to achieve key confirmation via TLS 1.3
-   Finished messages.
+   1.3, Internal PAKE protocols defined for use with TLS 1.3 MUST
+   provide forward secrecy and MUST be able to achieve key confirmation
+   via TLS 1.3 Finished messages.
 
-   A specification describing the use of a particular PAKE protocol with
-   TLS must provide the following details:
+   A specification describing the use of a particular Internal PAKE
+   protocol with TLS must provide the following details:
 
    *  A PAKEScheme registered value indicating pre-provisioned
       parameters;
@@ -399,24 +458,28 @@ Table of Contents
    *  How the outputs of the PAKE protocol are used to create the PAKE
       portion of the(EC)DHE input to the TLS key schedule.
 
-   Several current PAKE protocols satisfy these requirements, for
-   example:
+   Several current PAKE protocols satisfy these requirements for
+   Internal PAKE usage, for example:
 
    *  CPace [CPACE]
 
-   *  SPAKE2+ (described in Section 6) [RFC9383]
+   *  SPAKE2+ (described in Section 6.2) [RFC9383]
 
    *  OPAQUE [OPAQUE]
 
-6.  SPAKE2+ Integration
+   *  OQUAKE (described in Section 6.4) [PQPAKE]
+
+   *  OQUAKE+ (described in Section 6.5) [PQPAKE]
+
+6.2.  SPAKE2+ Integration
 
    This section describes the SPAKE2+ instantiation of the pake
    extension for TLS.  The SPAKE2+ protocol is described in
-   [SPAKE2PLUS].  Section 6.1 describes the setup required before the
-   protocol runs, and Section 6.2 describes the protocol execution in
+   [SPAKE2PLUS].  Section 6.2.1 describes the setup required before the
+   protocol runs, and Section 6.2.2 describes the protocol execution in
    TLS.
 
-6.1.  Protocol Setup
+6.2.1.  Protocol Setup
 
    The TLS client and server roles map to the Prover and Verifier roles
    in the SPAKE2+ specification, respectively.  Clients are configured
@@ -436,7 +499,7 @@ Table of Contents
    for SPAKE2+ fully defines the constants for M and N as needed for the
    protocol; see Section 4 of [SPAKE2PLUS].
 
-6.2.  Protocol Execution
+6.2.2.  Protocol Execution
 
    The content of one PAKEShare value in the PAKEClientHello structure
    consists of the PAKEScheme value SPAKE2PLUS_V1 and the value shareP
@@ -454,8 +517,8 @@ Table of Contents
    string or a string that may be specified by the protocol using tls to
    include additional context in the protocol transcript.  See Section 3
    of [SPAKE2PLUS].  The rest of the values needed for the transcript
-   derivation are as configured in Section 6.1, exchanged over the wire,
-   or computed by client and server.
+   derivation are as configured in Section 6.2.1, exchanged over the
+   wire, or computed by client and server.
 
    Using K_main, the client and server both compute K_shared which is
    combined with the (EC)DHE shared secret as input to the TLS 1.3 key
@@ -500,17 +563,17 @@ Table of Contents
    verification of confirmV fails, clients SHOULD abort the handshake
    with a "decrypt_error" alert.  The client and server do not
    additionally compute or verify confirmP as described in Section 3.4
-   of [SPAKE2PLUS].  See Section 9.4 for more information about the
+   of [SPAKE2PLUS].  See Section 9.4.1 for more information about the
    safety of this approach.
 
-7.  CPace Integration
+6.3.  CPace Integration
 
    This section describes the CPace instantiation of the pake extension
-   for TLS.  The CPace protocol is described in [CPACE].  Section 7.1
+   for TLS.  The CPace protocol is described in [CPACE].  Section 6.3.1
    describes the setup required before the protocol runs, and
-   Section 7.2 describes the protocol execution in TLS.
+   Section 6.3.2 describes the protocol execution in TLS.
 
-7.1.  Protocol Setup
+6.3.1.  Protocol Setup
 
    The TLS client and server roles map to the 'initiator' and
    'responder' roles in the CPace specification, respectively.  The
@@ -524,7 +587,7 @@ Table of Contents
    protocol, consisting of a group environment G and cryptographic hash
    function H.
 
-7.2.  Protocol Execution
+6.3.2.  Protocol Execution
 
    The content of one PAKEShare value in the PAKEClientHello structure
    consists of the PAKEScheme value CPACE_X25519_SHA512 and the value Ya
@@ -547,7 +610,353 @@ Table of Contents
    concatenated_shared_secret as specified in Section 3.3 of
    [I-D.ietf-tls-hybrid-design].  Specifically, ISK || (EC)DHE is used
    as the (EC)DHE input to the key schedule in Section 7.1 of [TLS13],
-   as shown above in Section 6.2.
+   as shown above in Section 6.2.2.
+
+6.4.  OQUAKE Integration
+
+   This section describes the OQUAKE instantiation of the pake extension
+   for TLS.  The OQUAKE protocol is a post-quantum symmetric PAKE
+   described in [PQPAKE].  Section 6.4.1 describes the setup required
+   before the protocol runs, and Section 6.4.2 describes the protocol
+   execution in TLS.
+
+6.4.1.  Protocol Setup
+
+   The TLS client and server roles map to the 'initiator' and
+   'responder' roles in the OQUAKE specification, respectively.  The
+   client and server must share a password-related string (PRS).  The
+   client and server may optionally be configured with a session
+   identifier and client and server identifiers, as described in
+   Section 8.2 of [PQPAKE].
+
+   The PAKEScheme value for OQUAKE specifies the BUA-sKEM instance and
+   KDF used by the protocol.
+
+6.4.2.  Protocol Execution
+
+   The content of one PAKEShare value in the PAKEClientHello structure
+   consists of the PAKEScheme value OQUAKE_V1 and the output message
+   from OQUAKE.Init as specified in Section 8.2.1 of [PQPAKE].
+
+   The content of the server PAKEShare value in the PAKEServerHello
+   structure consists of the PAKEScheme value OQUAKE_V1 and the output
+   message from OQUAKE.Respond as specified in Section 8.2.2 of
+   [PQPAKE].
+
+   Given these messages, the client runs OQUAKE.Finish to derive the
+   session key SK.  The OQUAKE response message includes a key
+   confirmation value h.  The client MUST verify this value as part of
+   OQUAKE.Finish.  If verification fails, clients SHOULD abort the
+   handshake with a "decrypt_error" alert.
+
+   The client and server both combine SK with the (EC)DHE shared secret
+   as input to the TLS 1.3 key schedule, where the (EC)DHE shared secret
+   is as specified in Section 7.1 of [TLS13] or as the
+   concatenated_shared_secret as specified in Section 3.3 of
+   [I-D.ietf-tls-hybrid-design].  Specifically, SK || (EC)DHE is used as
+   the (EC)DHE input to the key schedule in Section 7.1 of [TLS13], as
+   shown above in Section 6.2.2.
+
+   The OQUAKE context parameter is set to None for standalone use.  The
+   OQUAKE sid parameter SHOULD be left empty, relying on the TLS
+   transcript binding via Finished messages for session uniqueness.
+   Client-to-server key confirmation is provided via TLS 1.3 Finished
+   messages.
+
+6.5.  OQUAKE+ Integration
+
+   This section describes the OQUAKE+ instantiation of the pake
+   extension for TLS.  OQUAKE+ is a post-quantum asymmetric PAKE (aPAKE)
+   described in [PQPAKE].  Section 6.5.1 describes the setup required
+   before the protocol runs, and Section 6.5.2 describes the protocol
+   execution in TLS.
+
+6.5.1.  Protocol Setup
+
+   The TLS client and server roles map to the 'initiator' and
+   'responder' roles in the OQUAKE+ specification, respectively.
+   Clients are configured with a client identity, server identity,
+   password-related string (PRS), and salt.  Clients use these to derive
+   a verifier and seed via GenVerifierMaterial as described in
+   Section 9.1.1 of [PQPAKE].
+
+   Similarly, servers are configured with a list of client identity,
+   server identity, verifier, public key (pk), and salt values.  Servers
+   use the verifier and public key when completing the OQUAKE+ protocol.
+   The values for the verifier and public key are generated using
+   GenVerifiers as specified in Section 9.1.1 of [PQPAKE].
+
+   The PAKEScheme value for OQUAKE+ specifies the BUA-sKEM instance, KEM
+   instance, KDF, and KSF used by the protocol.
+
+6.5.2.  Protocol Execution
+
+   The content of one PAKEShare value in the PAKEClientHello structure
+   consists of the PAKEScheme value OQUAKE_PLUS_V1 and the output
+   message from OQUAKE+.Init as specified in Section 9.2.1 of [PQPAKE],
+   using the verifier as the password-related string.
+
+   The content of the server PAKEShare value in the PAKEServerHello
+   structure consists of the PAKEScheme value OQUAKE_PLUS_V1 and the
+   output message from OQUAKE+.Respond as specified in Section 9.2.2 of
+   [PQPAKE], using the verifier as the password-related string and the
+   client's registered public key.
+
+   Upon receiving the client's PAKEShare pake_message (denoted
+   init_msg), the server produces the response message and derives its
+   shared secret by invoking OQUAKE+.Respond, as specified in
+   Section 9.2.2 of [PQPAKE]:
+
+  state, resp_msg = OQUAKE+.Respond(PRS, public_context, secret_context,
+                                     init_msg, pk)
+
+   Here, PRS is the client's verifier, pk is the client's registered
+   public key, secret_context is None, and public_context is
+   encode_sid(sid, U, S), where sid is the session identifier and U and
+   S are the client and server identifiers.  This binds the session and
+   party identities into the key confirmation values that
+   OQUAKE+.Respond computes internally.
+
+   The server's PAKEShare pake_message is resp_msg.  The server's PAKE
+   shared secret is the server_key component of state.  Note that the
+   server does not invoke OQUAKE+.Verify -- which would check
+   server_confirm against a client-sent value -- since the TLS Finished
+   message from the client serves this confirmation purpose instead.
+   See Section 9.4.4 for more information about the safety of this
+   approach.
+
+   The server SHOULD NOT send application data before receiving a valid
+   Finished message from the client, which serves as confirmation that
+   the client derived the correct shared secret.
+
+   Upon receiving the server's PAKEShare pake_message (denoted
+   resp_msg), the client derives its shared secret by invoking
+   OQUAKE+.Finish, as specified in Section 9.2.3 of [PQPAKE]:
+
+client_key, response = OQUAKE+.Finish(state, seed, resp_msg, public_context)
+
+   Here, state is the opaque state produced by the client's earlier call
+   to OQUAKE+.Init, seed is the seed from GenVerifierMaterial, and
+   public_context is encode_sid(sid, U, S) as above.  The client's PAKE
+   shared secret is client_key; the response output value (the server's
+   confirmation value) is not sent to the server, since the pake
+   extension carries no third PAKEShare message for Internal PAKEs.
+
+   If OQUAKE+.Finish raises AuthenticationError -- which covers the key
+   confirmation value included in resp_msg not matching, KEM.Decaps
+   failing, or the client confirmation value not matching -- the client
+   MUST abort the handshake with a "decrypt_error" alert.
+
+   The client and server both combine their PAKE shared secret
+   (client_key and server_key, respectively) with the (EC)DHE shared
+   secret as input to the TLS 1.3 key schedule, where the (EC)DHE shared
+   secret is as specified in Section 7.1 of [TLS13] or as the
+   concatenated_shared_secret as specified in Section 3.3 of
+   [I-D.ietf-tls-hybrid-design].  Specifically, client_key || (EC)DHE is
+   used as the (EC)DHE input to the key schedule in Section 7.1 of
+   [TLS13], as shown above in Section 6.2.2.
+
+   The secret_context input to OQUAKE+.Respond and OQUAKE+.Finish is set
+   to None for standalone use of OQUAKE+ as an Internal PAKE; it is not
+   None when OQUAKE+ is composed with CPace, as in Section 7.
+
+7.  External PAKE Integration
+
+7.1.  Overview
+
+   External PAKEs provide an alternative approach for applications
+   requiring:
+
+   *  Multi-round PAKE protocols: Protocols requiring more than two
+      messages to complete authentication
+
+   *  Complex hybrid constructions: Sequential combinations of multiple
+      PAKE protocols
+
+   *  Application-controlled channels: Direct control over communication
+      channels and timing
+
+   *  Separation of concerns: Clear boundary between PAKE execution and
+      TLS connection establishment
+
+   External PAKEs execute their complete protocol exchange outside of
+   TLS, then integrate with TLS through External PSK Import [RFC9258].
+   This approach enables protocols that cannot be constrained to the
+   two-message limit of Internal PAKEs.
+
+7.2.  General Framework
+
+   External PAKE protocols must satisfy the following requirements:
+
+   *  High-entropy output: Must derive a cryptographically strong shared
+      secret
+
+   *  PSK Import compatibility: Output must be suitable for External PSK
+      Import per [RFC9258]
+
+   *  Secure session binding: Must provide mechanism to correlate out-
+      of-band execution with TLS connection
+
+   *  Forward secrecy: Must provide forward secrecy properties
+      appropriate to the application
+
+   The integration pattern for External PAKEs follows these phases:
+
+   1.  Out-of-band PAKE execution: Complete PAKE protocol exchange using
+       application-controlled channels
+
+   2.  PSK derivation: Use External PSK Import to derive TLS PSK from
+       PAKE output
+
+   3.  TLS PSK connection: Establish TLS connection using standard PSK
+       mechanisms
+
+   4.  Session correlation: Verify proper binding between PAKE execution
+       and TLS connection
+
+7.3.  CPaceOQUAKE+ Integration
+
+   This section describes how CPaceOQUAKE+, the hybrid aPAKE from
+   [PQPAKE], can be realized using out-of-band PAKE execution followed
+   by TLS integration via External PSK Import [RFC9258].  CPaceOQUAKE+
+   provides best-of-both-worlds security: it remains secure if either
+   the classical assumptions underlying CPace or the post-quantum
+   assumptions underlying OQUAKE+ hold.
+
+7.3.1.  Overview
+
+   CPaceOQUAKE+ cannot be realized within a single TLS handshake because
+   it requires more than two PAKE messages.  This specification
+   describes an out-of-band approach:
+
+   1.  CPace execution: Client and server execute CPace out-of-band to
+       derive a shared secret (ISK).
+
+   2.  OQUAKE+ execution: Client and server execute OQUAKE+ out-of-band
+       using the CPace ISK as context to derive a hybrid secret.
+
+   3.  TLS integration: Both parties import the hybrid secret as a PSK
+       using [RFC9258] External PSK Import and establish a standard TLS
+       PSK connection.
+
+   The sequential composition provides hybrid security per the analysis
+   in [PQPAKE].  The out-of-band approach eliminates complex TLS session
+   binding and allows applications to control channel configuration.
+
+7.3.2.  Protocol Setup
+
+   The TLS client and server roles map to the 'initiator' and
+   'responder' roles in both the CPace and OQUAKE+ specifications,
+   respectively.  Clients are configured with a password, client and
+   server identities, and OQUAKE+ verifier material per Section 9.1.1 of
+   [PQPAKE].  Servers are configured with corresponding password
+   information and OQUAKE+ public key material.
+
+   Both parties must support CPace and OQUAKE+ protocols for out-of-band
+   execution.  Applications configure out-of-band communication channels
+   and TLS endpoints separately.  Servers must implement state
+   management to correlate out-of-band PAKE execution with subsequent
+   TLS PSK connections.
+
+   The sequential composition follows the CPaceOQUAKE+ construction from
+   [PQPAKE], where CPace output serves as context input for OQUAKE+ to
+   achieve hybrid security.
+
+7.3.3.  Protocol Execution
+
+   The protocol execution follows three phases: CPace execution, OQUAKE+
+   execution with CPace context, and TLS PSK integration.
+
+Client                                Server
+  |                                    |
+  |-- CPace.Init --------------------->|
+  |<-- CPace.Respond ------------------|
+  | (both derive cpace_isk)            |
+  |                                    |
+  |-- OQUAKE+.Init ------------------->|
+  |<-- OQUAKE+.Respond ----------------|
+  | (both derive hybrid_secret)        |
+  |                                    |
+  | (both: external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK", context))
+  |                                    |
+  |-- TLS ClientHello ---------------->|
+  |    (with PSK extension)            |
+  |<-- TLS ServerHello ----------------|
+  |    (PSK selected)                  |
+  |-- [TLS handshake completion] ----->|
+  |<-- [TLS handshake completion] -----|
+
+   The detailed algorithm steps are:
+
+   First, CPace executes.  This consists of the following:
+
+- client_cpace_msg = CPace.Init(password, identities)
+- server_cpace_msg = CPace.Respond(client_cpace_msg, password, identities)
+- cpace_isk = CPace.Finish(server_cpace_msg)  // Both parties derive ISK
+
+   Second, OQUAKE+ executes with the CPace context as input.  This
+   consists of the following:
+
+- client_oquake_msg = OQUAKE+.Init(verifier, context=cpace_isk, identities)
+- server_oquake_msg = OQUAKE+.Respond(client_oquake_msg, verifier, pk, context=cpace_isk)
+- hybrid_secret = OQUAKE+.Finish(server_oquake_msg)  // Both parties derive final secret
+
+   The CPace ISK serves as context input for OQUAKE+ per the sequential
+   combiner construction.  Both protocols execute completely outside TLS
+   on application-configured channels, with no intermediate TLS
+   connections required.
+
+   When finished with the PAKE(s), both parties derive a TLS PSK from
+   the hybrid secret using [RFC9258] External PSK Import.  This consists
+   of the following:
+
+- external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK", context) // From RFC9258
+- psk_identity = application_defined_identifier
+- Standard TLS 1.3 PSK handshake using (external_psk, psk_identity)
+
+   The External PSK Import uses the following parameters:
+
+   *  shared_secret: hybrid_secret from OQUAKE+.Finish output
+
+   *  label: "TLS 1.3 CPaceOQUAKE+ PSK"
+
+   *  context: Application-provided context or empty string
+
+   *  hash: Hash function matching the TLS cipher suite
+
+   The TLS integration uses standard TLS 1.3 PSK mechanisms per
+   Section 4.2.11 of [TLS13].  The PSK identity can be application-
+   defined, with session correlation handled at the application layer.
+
+7.3.4.  Implementation Considerations
+
+   Channel Security: Out-of-band channels must provide adequate
+   confidentiality and integrity for PAKE message exchange.
+   Applications are responsible for establishing secure communication
+   channels for CPace and OQUAKE+ execution.
+
+   State Management: Applications must correlate out-of-band PAKE
+   execution with subsequent TLS connections.  This includes managing
+   PSK identities and ensuring proper cleanup of server state.
+
+   Resource Management: Servers should limit concurrent out-of-band PAKE
+   executions to prevent resource exhaustion attacks.  Consider the
+   cumulative computational cost of CPace and OQUAKE+ when setting
+   limits.
+
+   Dictionary Attack Mitigation: Building on the general guidance in
+   Section 9, servers implementing out-of-band CPaceOQUAKE+ SHOULD: -
+   Rate-limit CPace initiation attempts per client identity - Implement
+   exponential backoff for failed out-of-band authentication attempts -
+   Monitor for repeated failures across the entire out-of-band sequence
+   - Consider the cumulative cost of CPace + OQUAKE+ execution when
+   setting rate limits
+
+   Failure Handling: CPace and OQUAKE+ failures should be treated as
+   authentication attempts per the dictionary attack guidance.  TLS PSK
+   failures typically indicate implementation errors rather than
+   authentication failures.  Failed out-of-band sequences should trigger
+   appropriate cleanup to prevent server state leaks.
 
 8.  Privacy Considerations
 
@@ -594,7 +1003,7 @@ Table of Contents
 
    Many of the security properties of this protocol will derive from the
    PAKE protocol being used.  Security considerations for PAKE protocols
-   are noted in Section 5.
+   are noted in Section 6.
 
    If a server doesn't recognize the identity supplied by the client in
    the ClientHello pake extension, the server MAY abort the handshake
@@ -606,7 +1015,7 @@ Table of Contents
    identity is unrecognized, the server MAY simulate the protocol as if
    an identity was recognized, but the password was incorrect.  This is
    similar to the procedure outlined in [RFC5054].  The simulation
-   mechanism is described in Section 4.4.
+   mechanism is described in Section 5.4.
 
 9.3.  Ramifications of low entropy secret compromise
 
@@ -621,24 +1030,76 @@ Table of Contents
    impersonate a server to a client.  This is an important distinction
    in situations where the client sends sensitive data to the server.
 
-9.4.  SPAKE2+ Security Considerations
+9.4.  Internal PAKE Security Considerations
 
-   Section 6 describes how to integrate SPAKE2+ into TLS using the pake
-   extension in this document.  This integration deviates from the
+   The following security considerations apply to Internal PAKEs that
+   execute within the TLS handshake using the pake extension.
+
+9.4.1.  SPAKE2+ Security Considerations
+
+   Section 6.2 describes how to integrate SPAKE2+ into TLS using the
+   pake extension in this document.  This integration deviates from the
    SPAKE2+ protocol in [SPAKE2PLUS] in one important way: the explicit
    key confirmation checks required in [SPAKE2PLUS] are replaced with
    the TLS Finished messages.  This is because the TLS Finished messages
    compute a MAC over the TLS transcript, which includes both the shareP
    and shareV values exchanged for SPAKE2+.
 
-   [[OPEN ISSUE: this requires formal analysis to confirm.]]
+   OPEN ISSUE: this requires formal analysis to confirm.
 
-9.5.  CPace Security Considerations
+9.4.2.  CPace Security Considerations
 
-   Section 7 describes how to integrate CPace into TLS using the pake
+   Section 6.3 describes how to integrate CPace into TLS using the pake
    extension in this document.  Key confirmation is provided via TLS 1.3
    Finished messages, satisfying the requirements in Section 9.4 of
    [CPACE].
+
+9.4.3.  OQUAKE Security Considerations
+
+   Section 6.4 describes how to integrate OQUAKE into TLS using the pake
+   extension in this document.  The OQUAKE response message includes an
+   explicit key confirmation value h from server to client.  The client
+   MUST verify this value.  Client-to-server key confirmation is
+   provided via TLS 1.3 Finished messages.
+
+9.4.4.  OQUAKE+ Security Considerations
+
+   Section 6.5 describes how to integrate OQUAKE+ into TLS using the
+   pake extension in this document.  This integration deviates from the
+   full OQUAKE+ protocol in [PQPAKE] in one important way: the client
+   does not send the final server_confirm message (msg3).  Instead,
+   client-to-server key confirmation is provided via TLS 1.3 Finished
+   messages.  This is analogous to how SPAKE2+ integration (Section 6.2)
+   omits confirmP in favor of TLS Finished.
+
+   The TLS Finished messages compute a MAC over the TLS transcript,
+   which includes both the OQUAKE+.Init and OQUAKE+.Respond messages.  A
+   client that cannot derive the correct client_key (because it does not
+   know the password seed) cannot compute a valid Finished message,
+   providing the server with equivalent assurance to the explicit
+   server_confirm verification.
+
+   OPEN ISSUE: this requires formal analysis to confirm.
+
+9.5.  External PAKE Security Considerations
+
+   The following security considerations apply to External PAKEs that
+   execute out-of-band prior to TLS connection establishment.
+
+9.5.1.  CPaceOQUAKE+ Security Considerations
+
+   Section 7.3 describes how to integrate CPaceOQUAKE+ using out-of-band
+   execution followed by External PSK Import.  The security of this
+   composition relies on the sequential PAKE combiner analysis from
+   [PQPAKE]: by providing the CPace-derived context to OQUAKE+, the
+   effective password used in OQUAKE+ depends on both the original
+   password and the CPace session key.  This means an attacker must
+   break both CPace and OQUAKE+ to mount an offline dictionary attack.
+
+   The binding between connections is achieved through the TLS Exporter,
+   which derives the context from the TLS Master Secret.  An attacker
+   that did not participate in the first CPace handshake cannot predict
+   or influence the exported context value.
 
 10.  IANA Considerations
 
@@ -653,14 +1114,15 @@ Table of Contents
 
                                   Table 1
 
-   [[ RFC EDITOR: Please replace "TODO" in the above table with the
-   value assigned by IANA, and replace "(this document)" with the RFC
-   number assigned to this document. ]]
+   RFC EDITOR: Please replace "TODO" in the above table with the value
+   assigned by IANA, and replace "(this document)" with the RFC number
+   assigned to this document.
 
 10.1.  PAKE Scheme registry
 
    This document requests that IANA create a new registry called "PAKE
-   Schemes" with the following contents:
+   Schemes" for internal PAKEs (those negotiated with the PAKE
+   extension) with the following contents:
 
         +========+=====================+=================+=======+
         | Value  | PAKEScheme          |    Reference    | Notes |
@@ -668,6 +1130,10 @@ Table of Contents
         | 0xTODO | SPAKE2PLUS_V1       | (this document) | N/A   |
         +--------+---------------------+-----------------+-------+
         | 0xTODO | CPACE_X25519_SHA512 | (this document) | N/A   |
+        +--------+---------------------+-----------------+-------+
+        | 0xTODO | OQUAKE_V1           | (this document) | N/A   |
+        +--------+---------------------+-----------------+-------+
+        | 0xTODO | OQUAKE_PLUS_V1      | (this document) | N/A   |
         +--------+---------------------+-----------------+-------+
 
                                  Table 2
@@ -696,6 +1162,34 @@ Table of Contents
    The CPACE_X25519_SHA512 PAKEScheme variant has the parameters for
    'CPACE-X25519-SHA512' as specified in Section 4 of [CPACE].
 
+   The OQUAKE_V1 PAKEScheme variant has the following parameters
+   associated with it:
+
+   *  BUA-sKEM: ML-BUA-sKEM1024
+
+   *  KDF: HKDF-SHA-256
+
+   *  DST: as specified in [PQPAKE]
+
+   These parameters correspond to the RECOMMENDED configuration in
+   [PQPAKE].
+
+   The OQUAKE_PLUS_V1 PAKEScheme variant has the following parameters
+   associated with it:
+
+   *  BUA-sKEM: ML-BUA-sKEM1024
+
+   *  KEM: X-Wing [XWING]
+
+   *  KDF: HKDF-SHA-256
+
+   *  KSF: Argon2id [ARGON2] (parameters as specified in [PQPAKE])
+
+   *  DST: as specified in [PQPAKE]
+
+   These parameters correspond to the RECOMMENDED configuration in
+   [PQPAKE].
+
 Acknowledgments
 
    The authors would like to thank the original authors of [FIRST-DRAFT]
@@ -703,6 +1197,12 @@ Acknowledgments
    this document.
 
 Change Log
+
+   Since draft-ietf-tls-pake-01
+
+   *  Add internal and external PAKE distinction
+
+   *  Add OQUAKE and OQUAKE+ from draft-vos-cfrg-pqpake.
 
    Since draft-ietf-tls-pake-00
 
@@ -741,9 +1241,9 @@ Normative References
 
    [CPACE]    Abdalla, M., Haase, B., and J. Hesse, "CPace, a balanced
               composable PAKE", Work in Progress, Internet-Draft, draft-
-              irtf-cfrg-cpace-18, 1 February 2026,
+              irtf-cfrg-cpace-21, 22 April 2026,
               <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
-              cpace-18>.
+              cpace-21>.
 
    [I-D.ietf-tls-hybrid-design]
               Stebila, D., Fluhrer, S., and S. Gueron, "Hybrid key
@@ -751,6 +1251,11 @@ Normative References
               draft-ietf-tls-hybrid-design-16, 7 September 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-tls-
               hybrid-design-16>.
+
+   [PQPAKE]   Vos, J. and C. A. Wood, "Hybrid Post-Quantum Password
+              Authenticated Key Exchange", Work in Progress, Internet-
+              Draft, draft-vos-cfrg-pqpake-latest, 2026,
+              <https://datatracker.ietf.org/doc/draft-vos-cfrg-pqpake/>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -781,7 +1286,17 @@ Normative References
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
               <https://www.rfc-editor.org/rfc/rfc8446>.
 
+   [XWING]    Connolly, D., Schwabe, P., and B. Westerbaan, "X-Wing: The
+              Hybrid KEM You've Been Looking For", Work in Progress,
+              Internet-Draft, draft-connolly-cfrg-xwing-kem-latest,
+              2024, <https://datatracker.ietf.org/doc/draft-connolly-
+              cfrg-xwing-kem/>.
+
 Informative References
+
+   [ARGON2]   "Argon2 Memory-Hard Function for Password Hashing and
+              Proof-of-Work Applications", RFC 9106, 2022,
+              <https://www.rfc-editor.org/rfc/rfc9106>.
 
    [ECH]      Rescorla, E., Oku, K., Sullivan, N., and C. A. Wood, "TLS
               Encrypted Client Hello", Work in Progress, Internet-Draft,
@@ -805,6 +1320,11 @@ Informative References
               "Using the Secure Remote Password (SRP) Protocol for TLS
               Authentication", RFC 5054, DOI 10.17487/RFC5054, November
               2007, <https://www.rfc-editor.org/rfc/rfc5054>.
+
+   [RFC9258]  Benjamin, D. and C. A. Wood, "Importing External Pre-
+              Shared Keys (PSKs) for TLS 1.3", RFC 9258,
+              DOI 10.17487/RFC9258, July 2022,
+              <https://www.rfc-editor.org/rfc/rfc9258>.
 
 Authors' Addresses
 
