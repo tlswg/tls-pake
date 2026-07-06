@@ -118,8 +118,7 @@ actual password). The choice of PAKE and any required parameters will
 be explicitly specified using IANA assigned values.
 This document defines concrete protocols for executing the
 SPAKE2+ {{!RFC9383}}, CPACE {{!CPACE=I-D.irtf-cfrg-cpace}},
-OQUAKE {{PQPAKE}}, and
-OQUAKE+ {{PQPAKE}} PAKE protocols.
+OQUAKE {{PQPAKE}}, and OQUAKE+ {{PQPAKE}} PAKE protocols.
 
 # Terminology
 
