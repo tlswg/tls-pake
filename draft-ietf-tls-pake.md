@@ -117,7 +117,7 @@ password (e.g. augmented PAKEs only require one party to know the
 actual password). The choice of PAKE and any required parameters will
 be explicitly specified using IANA assigned values.
 This document defines concrete protocols for executing the
-SPAKE2+ {{!RFC9383}}, CPACE {{!CPACE=I-D.irtf-cfrg-cpace}},
+SPAKE2+ {{!SPAKE2PLUS=RFC9383}}, CPACE {{!CPACE=I-D.irtf-cfrg-cpace}},
 OQUAKE {{PQPAKE}}, and OQUAKE+ {{PQPAKE}} PAKE protocols.
 
 # Terminology
@@ -392,7 +392,7 @@ Several current PAKE protocols satisfy these requirements for Internal PAKE usag
 for example:
 
 * CPace {{!CPACE=I-D.irtf-cfrg-cpace}}
-* SPAKE2+ (described in {{spake2plus}}) {{!RFC9383}}
+* SPAKE2+ (described in {{!SPAKE2PLUS=RFC9383}}
 * OPAQUE {{?OPAQUE=I-D.irtf-cfrg-opaque}}
 * OQUAKE (described in {{oquake}}) {{PQPAKE}}
 * OQUAKE+ (described in {{oquakeplus}}) {{PQPAKE}}
@@ -400,7 +400,7 @@ for example:
 ## SPAKE2+ Integration {#spake2plus}
 
 This section describes the SPAKE2+ instantiation of the `pake` extension for TLS.
-The SPAKE2+ protocol is described in {{!RFC9383}}.
+The SPAKE2+ protocol is described in {{!SPAKE2PLUS=RFC9383}}.
 {{spake2plus-setup}} describes the setup required before the protocol runs,
 and {{spake2plus-run}} describes the protocol execution in TLS.
 
