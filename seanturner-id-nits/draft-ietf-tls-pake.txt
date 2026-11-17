@@ -5,11 +5,11 @@
 Transport Layer Security                                       L. Bauman
 Internet-Draft                                               Apple, Inc.
 Intended status: Informational                               D. Benjamin
-Expires: 7 January 2027                                       Google LLC
+Expires: 21 May 2027                                          Google LLC
                                                                 S. Menon
                                                               C. A. Wood
                                                              Apple, Inc.
-                                                             6 July 2026
+                                                        17 November 2026
 
 
       A Password Authenticated Key Exchange Extension for TLS 1.3
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 January 2027.
+   This Internet-Draft will expire on 21 May 2027.
 
 Copyright Notice
 
@@ -163,8 +163,8 @@ Table of Contents
    actual password).  The choice of PAKE and any required parameters
    will be explicitly specified using IANA assigned values.  This
    document defines concrete protocols for executing the SPAKE2+
-   [RFC9383], CPACE [CPACE], OQUAKE [PQPAKE], and OQUAKE+ [PQPAKE] PAKE
-   protocols.
+   [SPAKE2PLUS], CPACE [CPACE], OQUAKE [PQPAKE], and OQUAKE+ [PQPAKE]
+   PAKE protocols.
 
 2.  Terminology
 
@@ -463,7 +463,7 @@ Table of Contents
 
    *  CPace [CPACE]
 
-   *  SPAKE2+ (described in Section 6.2) [RFC9383]
+   *  SPAKE2+ (described in [SPAKE2PLUS]
 
    *  OPAQUE [OPAQUE]
 
@@ -1254,7 +1254,7 @@ Normative References
 
    [PQPAKE]   Vos, J. and C. A. Wood, "Hybrid Post-Quantum Password
               Authenticated Key Exchange", Work in Progress, Internet-
-              Draft, draft-vos-cfrg-pqpake-latest, 2026,
+              Draft, draft-vos-cfrg-pqpake, 2026,
               <https://datatracker.ietf.org/doc/draft-vos-cfrg-pqpake/>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -1271,11 +1271,6 @@ Normative References
               1.3", RFC 9147, DOI 10.17487/RFC9147, April 2022,
               <https://www.rfc-editor.org/rfc/rfc9147>.
 
-   [RFC9383]  Taubert, T. and C. A. Wood, "SPAKE2+, an Augmented
-              Password-Authenticated Key Exchange (PAKE) Protocol",
-              RFC 9383, DOI 10.17487/RFC9383, September 2023,
-              <https://www.rfc-editor.org/rfc/rfc9383>.
-
    [SPAKE2PLUS]
               Taubert, T. and C. A. Wood, "SPAKE2+, an Augmented
               Password-Authenticated Key Exchange (PAKE) Protocol",
@@ -1283,14 +1278,14 @@ Normative References
               <https://www.rfc-editor.org/rfc/rfc9383>.
 
    [TLS13]    Rescorla, E., "The Transport Layer Security (TLS) Protocol
-              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
-              <https://www.rfc-editor.org/rfc/rfc8446>.
+              Version 1.3", RFC 9846, DOI 10.17487/RFC9846, July 2026,
+              <https://www.rfc-editor.org/rfc/rfc9846>.
 
    [XWING]    Connolly, D., Schwabe, P., and B. Westerbaan, "X-Wing: The
               Hybrid KEM You've Been Looking For", Work in Progress,
-              Internet-Draft, draft-connolly-cfrg-xwing-kem-latest,
-              2024, <https://datatracker.ietf.org/doc/draft-connolly-
-              cfrg-xwing-kem/>.
+              Internet-Draft, draft-connolly-cfrg-xwing-kem, 2024,
+              <https://datatracker.ietf.org/doc/draft-connolly-cfrg-
+              xwing-kem/>.
 
 Informative References
 
