@@ -48,7 +48,7 @@ normative:
       - ins: J. Vos
       - ins: C. A. Wood
     seriesinfo:
-      Internet-Draft: draft-vos-cfrg-pqpake-latest
+      Internet-Draft: draft-vos-cfrg-pqpake
   XWING:
     title: "X-Wing: The Hybrid KEM You've Been Looking For"
     target: https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/
@@ -58,7 +58,7 @@ normative:
       - ins: P. Schwabe
       - ins: B. Westerbaan
     seriesinfo:
-      Internet-Draft: draft-connolly-cfrg-xwing-kem-latest
+      Internet-Draft: draft-connolly-cfrg-xwing-kem
 
 informative:
   ARGON2:
@@ -230,7 +230,7 @@ PAKE. If the client sends multiple PAKEShare values, then they MUST
 be sorted in monotonically increasing order by the NamedPAKE value. Moreover,
 the client MUST NOT send more than one PAKEShare with the same NamedPAKE value.
 
-{{Section 9.2 of !TLS13=RFC8446}} specifies that a valid ClientHello
+{{Section 9.2 of !TLS13=RFC9846}} specifies that a valid ClientHello
 must include either a `pre_shared_key` extension or both
 a `signature_algorithms` and `supported_groups` extension. With the
 addition of the `pake` extension specified here, the new requirement
@@ -243,7 +243,7 @@ following options:
 
 If a client sends the `pake` extension, then it MUST also send a `supported_groups` and
 `key_share` extension. Like PSK-based authentication in psk_dhe_ke mode as defined in
-{{Section 4.2.0 of !TLS13=RFC8446}}, authentication with the `pake` extension
+{{Section 4.2.0 of !TLS13=RFC9846}}, authentication with the `pake` extension
 is always combined with the normal TLS key exchange mechanism. See {{key-sched-mods}} for details.
 
 Combining the `pake` extension with the normal TLS key exchange mechanism
@@ -400,7 +400,7 @@ for example:
 ## SPAKE2+ Integration {#spake2plus}
 
 This section describes the SPAKE2+ instantiation of the `pake` extension for TLS.
-The SPAKE2+ protocol is described in {{!SPAKE2PLUS=RFC9383}}.
+The SPAKE2+ protocol is described in {{!RFC9383}}.
 {{spake2plus-setup}} describes the setup required before the protocol runs,
 and {{spake2plus-run}} describes the protocol execution in TLS.
 
@@ -442,9 +442,9 @@ exchanged over the wire, or computed by client and server.
 
 Using `K_main`, the client and server both compute `K_shared` which is combined with the
 `(EC)DHE` shared secret as input to the TLS 1.3 key schedule, where the (EC)DHE shared
-secret is as specified in {{Section 7.1 of !TLS13=RFC8446}} or as the `concatenated_shared_secret`
+secret is as specified in {{Section 7.1 of !TLS13=RFC9846}} or as the `concatenated_shared_secret`
 as specified in {{Section 3.3 of !I-D.ietf-tls-hybrid-design}}. Specifically, `K_shared || (EC)DHE` is used
-as the `(EC)DHE` input to the key schedule in {{Section 7.1 of !TLS13=RFC8446}}, as shown below.
+as the `(EC)DHE` input to the key schedule in {{Section 7.1 of !TLS13=RFC9846}}, as shown below.
 
 ~~~
                                     0
@@ -521,10 +521,10 @@ will contribute to the derivation of `ISK`.
 
 The client and server both combine `ISK` with the `(EC)DHE` shared secret as
 input to the TLS 1.3 key schedule, where the (EC)DHE shared secret is as
-specified in {{Section 7.1 of !TLS13=RFC8446}} or as the
+specified in {{Section 7.1 of !TLS13=RFC9846}} or as the
 `concatenated_shared_secret` as specified in {{Section 3.3 of !I-D.ietf-tls-hybrid-design}}.
 Specifically, `ISK || (EC)DHE` is used as the `(EC)DHE` input to the key
-schedule in {{Section 7.1 of !TLS13=RFC8446}}, as shown above in {{spake2plus-run}}.
+schedule in {{Section 7.1 of !TLS13=RFC9846}}, as shown above in {{spake2plus-run}}.
 
 ## OQUAKE Integration {#oquake}
 
@@ -561,10 +561,10 @@ clients SHOULD abort the handshake with a "decrypt_error" alert.
 
 The client and server both combine `SK` with the `(EC)DHE` shared secret as
 input to the TLS 1.3 key schedule, where the (EC)DHE shared secret is as
-specified in {{Section 7.1 of !TLS13=RFC8446}} or as the
+specified in {{Section 7.1 of !TLS13=RFC9846}} or as the
 `concatenated_shared_secret` as specified in {{Section 3.3 of !I-D.ietf-tls-hybrid-design}}.
 Specifically, `SK || (EC)DHE` is used as the `(EC)DHE` input to the key
-schedule in {{Section 7.1 of !TLS13=RFC8446}}, as shown above in {{spake2plus-run}}.
+schedule in {{Section 7.1 of !TLS13=RFC9846}}, as shown above in {{spake2plus-run}}.
 
 The OQUAKE `context` parameter is set to `None` for standalone use.
 The OQUAKE `sid` parameter SHOULD be left empty, relying on the TLS
@@ -655,10 +655,10 @@ handshake with a "decrypt_error" alert.
 The client and server both combine their PAKE shared secret (`client_key` and
 `server_key`, respectively) with the `(EC)DHE` shared secret as input to the
 TLS 1.3 key schedule, where the (EC)DHE shared secret is as
-specified in {{Section 7.1 of !TLS13=RFC8446}} or as the
+specified in {{Section 7.1 of !TLS13=RFC9846}} or as the
 `concatenated_shared_secret` as specified in {{Section 3.3 of !I-D.ietf-tls-hybrid-design}}.
 Specifically, `client_key || (EC)DHE` is used as the `(EC)DHE` input to the key
-schedule in {{Section 7.1 of !TLS13=RFC8446}}, as shown above in {{spake2plus-run}}.
+schedule in {{Section 7.1 of !TLS13=RFC9846}}, as shown above in {{spake2plus-run}}.
 
 The `secret_context` input to `OQUAKE+.Respond` and `OQUAKE+.Finish` is set
 to `None` for standalone use of OQUAKE+ as an Internal PAKE; it is not `None`
@@ -859,7 +859,7 @@ The External PSK Import uses the following parameters:
 - context: Application-provided context or empty string
 - hash: Hash function matching the TLS cipher suite
 
-The TLS integration uses standard TLS 1.3 PSK mechanisms per {{Section 4.2.11 of !TLS13=RFC8446}}.
+The TLS integration uses standard TLS 1.3 PSK mechanisms per {{Section 4.2.11 of !TLS13=RFC9846}}.
 The PSK identity can be application-defined, with session correlation handled at the
 application layer.
 
