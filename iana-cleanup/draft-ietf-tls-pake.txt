@@ -169,8 +169,8 @@ Table of Contents
    actual password).  The choice of PAKE and any required parameters
    will be explicitly specified using IANA assigned values.  This
    document defines concrete protocols for executing the SPAKE2+
-   [SPAKE2PLUS], CPACE [CPACE], OQUAKE [PQPAKE], and OQUAKE+ [PQPAKE]
-   PAKE protocols.
+   [RFC9383], CPACE [CPACE], OQUAKE [PQPAKE], and OQUAKE+ [PQPAKE] PAKE
+   protocols.
 
 2.  Terminology
 
@@ -299,7 +299,7 @@ Table of Contents
 
    If a client sends the pake extension, then it MUST also send a
    supported_groups and key_share extension.  Like PSK-based
-   authentication in psk_dhe_ke mode as defined in Section 4.3.9 of
+   authentication in psk_dhe_ke mode as defined in Section 4.2.0 of
    [TLS13], authentication with the pake extension is always combined
    with the normal TLS key exchange mechanism.  See Section 5.3 for
    details.
@@ -467,9 +467,11 @@ Table of Contents
    Several current PAKE protocols satisfy these requirements for
    Internal PAKE usage, for example:
 
-   *  CPace (described in Section 6.3) [CPACE]
+   *  CPace [CPACE]
 
-   *  SPAKE2+ (described in Section 6.2) [SPAKE2PLUS]
+   *  SPAKE2+ (described in Section 6.2) [RFC9383]
+
+   *  OPAQUE [OPAQUE]
 
    *  OQUAKE (described in Section 6.4) [PQPAKE]
 
@@ -528,9 +530,9 @@ Table of Contents
    combined with the (EC)DHE shared secret as input to the TLS 1.3 key
    schedule, where the (EC)DHE shared secret is as specified in
    Section 7.1 of [TLS13] or as the concatenated_shared_secret as
-   specified in Section 3.3 of [RFC9954].  Specifically, K_shared ||
-   (EC)DHE is used as the (EC)DHE input to the key schedule in
-   Section 7.1 of [TLS13], as shown below.
+   specified in Section 3.3 of [I-D.ietf-tls-hybrid-design].
+   Specifically, K_shared || (EC)DHE is used as the (EC)DHE input to the
+   key schedule in Section 7.1 of [TLS13], as shown below.
 
                                       0
                                       |
@@ -611,9 +613,10 @@ Table of Contents
    The client and server both combine ISK with the (EC)DHE shared secret
    as input to the TLS 1.3 key schedule, where the (EC)DHE shared secret
    is as specified in Section 7.1 of [TLS13] or as the
-   concatenated_shared_secret as specified in Section 3.3 of [RFC9954].
-   Specifically, ISK || (EC)DHE is used as the (EC)DHE input to the key
-   schedule in Section 7.1 of [TLS13], as shown above in Section 6.2.2.
+   concatenated_shared_secret as specified in Section 3.3 of
+   [I-D.ietf-tls-hybrid-design].  Specifically, ISK || (EC)DHE is used
+   as the (EC)DHE input to the key schedule in Section 7.1 of [TLS13],
+   as shown above in Section 6.2.2.
 
 6.4.  OQUAKE Integration
 
@@ -655,9 +658,10 @@ Table of Contents
    The client and server both combine SK with the (EC)DHE shared secret
    as input to the TLS 1.3 key schedule, where the (EC)DHE shared secret
    is as specified in Section 7.1 of [TLS13] or as the
-   concatenated_shared_secret as specified in Section 3.3 of [RFC9954].
-   Specifically, SK || (EC)DHE is used as the (EC)DHE input to the key
-   schedule in Section 7.1 of [TLS13], as shown above in Section 6.2.2.
+   concatenated_shared_secret as specified in Section 3.3 of
+   [I-D.ietf-tls-hybrid-design].  Specifically, SK || (EC)DHE is used as
+   the (EC)DHE input to the key schedule in Section 7.1 of [TLS13], as
+   shown above in Section 6.2.2.
 
    The OQUAKE context parameter is set to None for standalone use.  The
    OQUAKE sid parameter SHOULD be left empty, relying on the TLS
@@ -735,8 +739,7 @@ Table of Contents
    resp_msg), the client derives its shared secret by invoking
    OQUAKE+.Finish, as specified in Section 9.2.3 of [PQPAKE]:
 
-   client_key, response = OQUAKE+.Finish(state, seed, resp_msg,
-                                         public_context)
+client_key, response = OQUAKE+.Finish(state, seed, resp_msg, public_context)
 
    Here, state is the opaque state produced by the client's earlier call
    to OQUAKE+.Init, seed is the seed from GenVerifierMaterial, and
@@ -754,10 +757,10 @@ Table of Contents
    (client_key and server_key, respectively) with the (EC)DHE shared
    secret as input to the TLS 1.3 key schedule, where the (EC)DHE shared
    secret is as specified in Section 7.1 of [TLS13] or as the
-   concatenated_shared_secret as specified in Section 3.3 of [RFC9954].
-   Specifically, client_key || (EC)DHE is used as the (EC)DHE input to
-   the key schedule in Section 7.1 of [TLS13], as shown above in
-   Section 6.2.2.
+   concatenated_shared_secret as specified in Section 3.3 of
+   [I-D.ietf-tls-hybrid-design].  Specifically, client_key || (EC)DHE is
+   used as the (EC)DHE input to the key schedule in Section 7.1 of
+   [TLS13], as shown above in Section 6.2.2.
 
    The secret_context input to OQUAKE+.Respond and OQUAKE+.Finish is set
    to None for standalone use of OQUAKE+ as an Internal PAKE; it is not
@@ -938,44 +941,39 @@ Table of Contents
    The protocol execution follows three phases: CPace execution, OQUAKE+
    execution with CPace context, and TLS PSK integration.
 
-   Client                                Server
-     |                                    |
-     |-- CPace.Init --------------------->|
-     |<-- CPace.Respond ------------------|
-     | (both derive cpace_isk)            |
-     |                                    |
-     |-- OQUAKE+.Init ------------------->|
-     |<-- OQUAKE+.Respond ----------------|
-     | (both derive hybrid_secret)        |
-     |                                    |
-     | (both: external_psk = Import(hybrid_secret,
-     |        "TLS 1.3 CPaceOQUAKE+ PSK", context))
-     |                                    |
-     |-- TLS ClientHello ---------------->|
-     |    (with PSK extension)            |
-     |<-- TLS ServerHello ----------------|
-     |    (PSK selected)                  |
-     |-- [TLS handshake completion] ----->|
-     |<-- [TLS handshake completion] -----|
+Client                                Server
+  |                                    |
+  |-- CPace.Init --------------------->|
+  |<-- CPace.Respond ------------------|
+  | (both derive cpace_isk)            |
+  |                                    |
+  |-- OQUAKE+.Init ------------------->|
+  |<-- OQUAKE+.Respond ----------------|
+  | (both derive hybrid_secret)        |
+  |                                    |
+  | (both: external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK", context))
+  |                                    |
+  |-- TLS ClientHello ---------------->|
+  |    (with PSK extension)            |
+  |<-- TLS ServerHello ----------------|
+  |    (PSK selected)                  |
+  |-- [TLS handshake completion] ----->|
+  |<-- [TLS handshake completion] -----|
 
    The detailed algorithm steps are:
 
    First, CPace executes.  This consists of the following:
 
 - client_cpace_msg = CPace.Init(password, identities)
-- server_cpace_msg = CPace.Respond(client_cpace_msg, password,
-                                   identities)
+- server_cpace_msg = CPace.Respond(client_cpace_msg, password, identities)
 - cpace_isk = CPace.Finish(server_cpace_msg)  // Both parties derive ISK
 
    Second, OQUAKE+ executes with the CPace context as input.  This
    consists of the following:
 
-   - client_oquake_msg = OQUAKE+.Init(verifier, context=cpace_isk,
-                                      identities)
-   - server_oquake_msg = OQUAKE+.Respond(client_oquake_msg, verifier,
-                                         pk, context=cpace_isk)
-   - hybrid_secret = OQUAKE+.Finish(server_oquake_msg)
-     // Both parties derive final secret
+- client_oquake_msg = OQUAKE+.Init(verifier, context=cpace_isk, identities)
+- server_oquake_msg = OQUAKE+.Respond(client_oquake_msg, verifier, pk, context=cpace_isk)
+- hybrid_secret = OQUAKE+.Finish(server_oquake_msg)  // Both parties derive final secret
 
    The CPace ISK serves as context input for OQUAKE+ per the sequential
    combiner construction.  Both protocols execute completely outside TLS
@@ -986,10 +984,9 @@ Table of Contents
    the hybrid secret using [RFC9258] External PSK Import.  This consists
    of the following:
 
-   - external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK",
-                           context)  // From RFC9258
-   - psk_identity = application_defined_identifier
-   - Standard TLS 1.3 PSK handshake using (external_psk, psk_identity)
+- external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK", context) // From RFC9258
+- psk_identity = application_defined_identifier
+- Standard TLS 1.3 PSK handshake using (external_psk, psk_identity)
 
    The External PSK Import uses the following parameters:
 
@@ -1002,7 +999,7 @@ Table of Contents
    *  hash: Hash function matching the TLS cipher suite
 
    The TLS integration uses standard TLS 1.3 PSK mechanisms per
-   Section 4.3.11 of [TLS13].  The PSK identity can be application-
+   Section 4.2.11 of [TLS13].  The PSK identity can be application-
    defined, with session correlation handled at the application layer.
 
 7.3.4.  Implementation Considerations
@@ -1277,14 +1274,6 @@ Change Log
    *  Move PAKEScheme parameter definitions out of IANA Considerations
       into a new PAKE Schemes section
 
-   *  Remove OPAQUE from the list of example Internal PAKEs
-
-   *  Cite RFC 9846 for TLS 1.3 and update section references
-
-   *  Cite RFC 9954 and RFC 9849 instead of the drafts that became them
-
-   *  Editorial fixes from I-D nits review
-
    Since draft-ietf-tls-pake-01
 
    *  Add internal and external PAKE distinction
@@ -1334,9 +1323,16 @@ Normative References
               <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
               cpace-21>.
 
+   [I-D.ietf-tls-hybrid-design]
+              Stebila, D., Fluhrer, S., and S. Gueron, "Hybrid key
+              exchange in TLS 1.3", Work in Progress, Internet-Draft,
+              draft-ietf-tls-hybrid-design-16, 7 September 2025,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-tls-
+              hybrid-design-16>.
+
    [PQPAKE]   Vos, J. and C. A. Wood, "Hybrid Post-Quantum Password
               Authenticated Key Exchange", Work in Progress, Internet-
-              Draft, draft-vos-cfrg-pqpake, 2026,
+              Draft, draft-vos-cfrg-pqpake-latest, 2026,
               <https://datatracker.ietf.org/doc/draft-vos-cfrg-pqpake/>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -1353,13 +1349,14 @@ Normative References
               1.3", RFC 9147, DOI 10.17487/RFC9147, April 2022,
               <https://www.rfc-editor.org/rfc/rfc9147>.
 
+   [RFC9383]  Taubert, T. and C. A. Wood, "SPAKE2+, an Augmented
+              Password-Authenticated Key Exchange (PAKE) Protocol",
+              RFC 9383, DOI 10.17487/RFC9383, September 2023,
+              <https://www.rfc-editor.org/rfc/rfc9383>.
+
    [RFC9847]  Salowey, J. and S. Turner, "IANA Registry Updates for TLS
               and DTLS", RFC 9847, DOI 10.17487/RFC9847, December 2025,
               <https://www.rfc-editor.org/rfc/rfc9847>.
-
-   [RFC9954]  Stebila, D., Fluhrer, S., and S. Gueron, "Hybrid Key
-              Exchange in TLS 1.3", RFC 9954, DOI 10.17487/RFC9954, July
-              2026, <https://www.rfc-editor.org/rfc/rfc9954>.
 
    [SPAKE2PLUS]
               Taubert, T. and C. A. Wood, "SPAKE2+, an Augmented
@@ -1368,14 +1365,14 @@ Normative References
               <https://www.rfc-editor.org/rfc/rfc9383>.
 
    [TLS13]    Rescorla, E., "The Transport Layer Security (TLS) Protocol
-              Version 1.3", RFC 9846, DOI 10.17487/RFC9846, July 2026,
-              <https://www.rfc-editor.org/rfc/rfc9846>.
+              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
+              <https://www.rfc-editor.org/rfc/rfc8446>.
 
    [XWING]    Connolly, D., Schwabe, P., and B. Westerbaan, "X-Wing: The
               Hybrid KEM You've Been Looking For", Work in Progress,
-              Internet-Draft, draft-connolly-cfrg-xwing-kem, 2024,
-              <https://datatracker.ietf.org/doc/draft-connolly-cfrg-
-              xwing-kem/>.
+              Internet-Draft, draft-connolly-cfrg-xwing-kem-latest,
+              2024, <https://datatracker.ietf.org/doc/draft-connolly-
+              cfrg-xwing-kem/>.
 
 Informative References
 
@@ -1384,14 +1381,22 @@ Informative References
               <https://www.rfc-editor.org/rfc/rfc9106>.
 
    [ECH]      Rescorla, E., Oku, K., Sullivan, N., and C. A. Wood, "TLS
-              Encrypted Client Hello", RFC 9849, DOI 10.17487/RFC9849,
-              March 2026, <https://www.rfc-editor.org/rfc/rfc9849>.
+              Encrypted Client Hello", Work in Progress, Internet-Draft,
+              draft-ietf-tls-esni-25, 14 June 2025,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-tls-
+              esni-25>.
 
    [FIRST-DRAFT]
               Barnes, R. and O. Friel, "Usage of PAKE with TLS 1.3",
               Work in Progress, Internet-Draft, draft-barnes-tls-pake-
               04, 16 July 2018, <https://datatracker.ietf.org/doc/html/
               draft-barnes-tls-pake-04>.
+
+   [OPAQUE]   Bourdrez, D., Krawczyk, H., Lewi, K., and C. A. Wood, "The
+              OPAQUE Augmented PAKE Protocol", Work in Progress,
+              Internet-Draft, draft-irtf-cfrg-opaque-18, 21 November
+              2024, <https://datatracker.ietf.org/doc/html/draft-irtf-
+              cfrg-opaque-18>.
 
    [RFC5054]  Taylor, D., Wu, T., Mavrogiannopoulos, N., and T. Perrin,
               "Using the Secure Remote Password (SRP) Protocol for TLS
