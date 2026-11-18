@@ -664,6 +664,64 @@ The `secret_context` input to `OQUAKE+.Respond` and `OQUAKE+.Finish` is set
 to `None` for standalone use of OQUAKE+ as an Internal PAKE; it is not `None`
 when OQUAKE+ is composed with CPace, as in {{external-pakes}}.
 
+## PAKE Schemes {#pake-schemes}
+
+This section defines the PAKEScheme values used in this document. Each
+PAKEScheme value identifies a PAKE protocol together with all of its
+parameters. Other documents can define new PAKEScheme values; see
+{{iana-pake-schemes}}.
+
+### SPAKE2PLUS_V1
+
+The SPAKE2PLUS_V1 PAKEScheme variant uses SPAKE2+ as described in
+{{spake2plus}}, and has the following parameters associated with it:
+
+* G: P-256
+* Hash: SHA256
+* KDF: HKDF-SHA256
+* MAC: HMAC-SHA256
+
+Additionally, it uses the M and N values from {{Section 4 of SPAKE2PLUS}}, included
+below, as compressed points on the P-256 curve, for completeness.
+
+~~~
+M =
+02886e2f97ace46e55ba9dd7242579f2993b64e16ef3dcab95afd497333d8fa12f
+
+N =
+03d8bbd6c639c62937b04d997f38c3770719c629d7014d49a24b4f98baa1292b49
+~~~
+
+### CPACE_X25519_SHA512
+
+The CPACE_X25519_SHA512 PAKEScheme variant uses CPace as described in
+{{cpace}}, and has the parameters for 'CPACE-X25519-SHA512'
+as specified in {{Section 4 of !CPACE=I-D.irtf-cfrg-cpace}}.
+
+### OQUAKE_V1
+
+The OQUAKE_V1 PAKEScheme variant uses OQUAKE as described in {{oquake}},
+and has the following parameters associated with it:
+
+* BUA-sKEM: ML-BUA-sKEM1024
+* KDF: HKDF-SHA-256
+* DST: as specified in {{PQPAKE}}
+
+These parameters correspond to the RECOMMENDED configuration in {{PQPAKE}}.
+
+### OQUAKE_PLUS_V1
+
+The OQUAKE_PLUS_V1 PAKEScheme variant uses OQUAKE+ as described in
+{{oquakeplus}}, and has the following parameters associated with it:
+
+* BUA-sKEM: ML-BUA-sKEM1024
+* KEM: X-Wing {{XWING}}
+* KDF: HKDF-SHA-256
+* KSF: Argon2id {{ARGON2}} (parameters as specified in {{PQPAKE}})
+* DST: as specified in {{PQPAKE}}
+
+These parameters correspond to the RECOMMENDED configuration in {{PQPAKE}}.
+
 # External PAKE Integration {#external-pakes}
 
 ## Overview {#external-overview}
@@ -968,68 +1026,64 @@ exported context value.
 
 # IANA Considerations
 
-This document requests that IANA add a value to the TLS
-ExtensionType Registry with the following contents:
+## TLS ExtensionType Values
 
-| Value | Extension Name | TLS 1.3 | Reference |
-|:------|:---------------|:-------:|:---------:|
-| 0xTODO   | pake           | CH, SH  | (this document)  |
+This document requests that IANA add a value to the "TLS ExtensionType
+Values" registry with the following contents:
+
+| Value | Extension Name | TLS 1.3 | DTLS-Only | Recommended | Reference | Comment |
+|:------|:---------------|:-------:|:---------:|:-----------:|:---------:|:--------|
+| 0xTODO | pake | CH, SH | N | N | (this document) | For TLS 1.3 or later |
 
 RFC EDITOR: Please replace "TODO" in the above table with the
 value assigned by IANA, and replace "(this document)" with the
 RFC number assigned to this document.
 
-## PAKE Scheme registry
+## TLS PAKE Schemes Registry {#iana-pake-schemes}
 
 This document requests that IANA create a new registry called
-"PAKE Schemes" for internal PAKEs (those negotiated with the
-PAKE extension) with the following contents:
+"TLS PAKE Schemes" in the "Transport Layer Security (TLS) Parameters"
+registry group. This registry lists the PAKEScheme values used with
+the `pake` extension. New registrations will list the following
+attributes:
 
-| Value   | PAKEScheme | Reference | Notes |
-|:--------|:-----------|:---------:|:------|
-| 0xTODO  | SPAKE2PLUS_V1 | (this document) | N/A |
-| 0xTODO  | CPACE_X25519_SHA512 | (this document) | N/A |
-| 0xTODO  | OQUAKE_V1 | (this document) | N/A |
-| 0xTODO  | OQUAKE_PLUS_V1 | (this document) | N/A |
+Value:
+: The two-byte PAKEScheme identifier
 
-The SPAKE2PLUS_V1 PAKEScheme variant has the following parameters associated with it:
+PAKEScheme:
+: The name of the PAKEScheme
 
-* G: P-256
-* Hash: SHA256
-* KDF: HKDF-SHA256
-* MAC: HMAC-SHA256
+Recommended:
+: A "Y", "N", or "D" value, as defined in {{Section 3 of !RFC9847}}.
+  This column is set to "N" unless explicitly requested. Setting a
+  value to "Y" or "D" requires IETF Standards Action with Expert
+  Review or IESG Approval {{?RFC8126}}.
 
-Additionally, it uses the M and N values from {{Section 4 of SPAKE2PLUS}}, included
-below, as compressed points on the P-256 curve, for completeness.
+Reference:
+: The document that defines the PAKEScheme
 
-~~~
-M =
-02886e2f97ace46e55ba9dd7242579f2993b64e16ef3dcab95afd497333d8fa12f
+Comment:
+: Any comments about the entry
 
-N =
-03d8bbd6c639c62937b04d997f38c3770719c629d7014d49a24b4f98baa1292b49
-~~~
+New entries in the "TLS PAKE Schemes" registry are subject to the
+Specification Required registration policy ({{Section 4.6 of RFC8126}}),
+with the policies described in {{Section 16 of RFC9847}}.
 
-The CPACE_X25519_SHA512 PAKEScheme variant has the parameters for 'CPACE-X25519-SHA512'
-as specified in {{Section 4 of !CPACE=I-D.irtf-cfrg-cpace}}.
+All entries in this registry are for TLS 1.3 or later, as described
+in {{?RFC9851}}.
 
-The OQUAKE_V1 PAKEScheme variant has the following parameters associated with it:
+The initial contents of the registry are:
 
-* BUA-sKEM: ML-BUA-sKEM1024
-* KDF: HKDF-SHA-256
-* DST: as specified in {{PQPAKE}}
+| Value | PAKEScheme | Recommended | Reference | Comment |
+|:------|:-----------|:-----------:|:---------:|:--------|
+| 0xTODO | SPAKE2PLUS_V1 | N | (this document) | For TLS 1.3 or later |
+| 0xTODO | CPACE_X25519_SHA512 | N | (this document) | For TLS 1.3 or later |
+| 0xTODO | OQUAKE_V1 | N | (this document) | For TLS 1.3 or later |
+| 0xTODO | OQUAKE_PLUS_V1 | N | (this document) | For TLS 1.3 or later |
 
-These parameters correspond to the RECOMMENDED configuration in {{PQPAKE}}.
-
-The OQUAKE_PLUS_V1 PAKEScheme variant has the following parameters associated with it:
-
-* BUA-sKEM: ML-BUA-sKEM1024
-* KEM: X-Wing {{XWING}}
-* KDF: HKDF-SHA-256
-* KSF: Argon2id {{ARGON2}} (parameters as specified in {{PQPAKE}})
-* DST: as specified in {{PQPAKE}}
-
-These parameters correspond to the RECOMMENDED configuration in {{PQPAKE}}.
+RFC EDITOR: Please replace "TODO" in the above table with the
+values assigned by IANA, and replace "(this document)" with the
+RFC number assigned to this document.
 
 # Acknowledgments
 {:numbered="false"}
@@ -1041,10 +1095,21 @@ document.
 # Change Log
 {:numbered="false"}
 
+Since draft-ietf-tls-pake-02
+
+* Address IANA review: add DTLS-Only, Recommended, and Comment fields to
+  the `pake` ExtensionType registration; rename the new registry to
+  "TLS PAKE Schemes" in the TLS Parameters registry group, with
+  Recommended and Comment columns and a registration policy
+* Mark new registry entries "For TLS 1.3 or later" per RFC 9851
+* Move PAKEScheme parameter definitions out of IANA Considerations
+  into a new PAKE Schemes section
+
 Since draft-ietf-tls-pake-01
 
 * Add internal and external PAKE distinction
 * Add OQUAKE and OQUAKE+ from draft-vos-cfrg-pqpake.
+* Add CPaceOQUAKE+ as an External PAKE using External PSK Import
 
 Since draft-ietf-tls-pake-00
 
