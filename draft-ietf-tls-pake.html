@@ -1403,7 +1403,7 @@ password (e.g. augmented PAKEs only require one party to know the
 actual password). The choice of PAKE and any required parameters will
 be explicitly specified using IANA assigned values.
 This document defines concrete protocols for executing the
-SPAKE2+ <span>[<a href="#RFC9383" class="cite xref">RFC9383</a>]</span>, CPACE <span>[<a href="#CPACE" class="cite xref">CPACE</a>]</span>,
+SPAKE2+ <span>[<a href="#SPAKE2PLUS" class="cite xref">SPAKE2PLUS</a>]</span>, CPACE <span>[<a href="#CPACE" class="cite xref">CPACE</a>]</span>,
 OQUAKE <span>[<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>, and OQUAKE+ <span>[<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span> PAKE protocols.<a href="#section-1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1540,7 +1540,7 @@ PAKE the server supports it could send corresponding PAKEShares for each
 PAKE. If the client sends multiple PAKEShare values, then they <span class="bcp14">MUST</span>
 be sorted in monotonically increasing order by the NamedPAKE value. Moreover,
 the client <span class="bcp14">MUST NOT</span> send more than one PAKEShare with the same NamedPAKE value.<a href="#section-5.1-8" class="pilcrow">¶</a></p>
-<p id="section-5.1-9"><span><a href="https://rfc-editor.org/rfc/rfc8446#section-9.2" class="relref">Section 9.2</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> specifies that a valid ClientHello
+<p id="section-5.1-9"><span><a href="https://rfc-editor.org/rfc/rfc9846#section-9.2" class="relref">Section 9.2</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> specifies that a valid ClientHello
 must include either a <code>pre_shared_key</code> extension or both
 a <code>signature_algorithms</code> and <code>supported_groups</code> extension. With the
 addition of the <code>pake</code> extension specified here, the new requirement
@@ -1559,7 +1559,7 @@ following options:<a href="#section-5.1-9" class="pilcrow">¶</a></p>
         </ul>
 <p id="section-5.1-11">If a client sends the <code>pake</code> extension, then it <span class="bcp14">MUST</span> also send a <code>supported_groups</code> and
 <code>key_share</code> extension. Like PSK-based authentication in psk_dhe_ke mode as defined in
-<span><a href="https://rfc-editor.org/rfc/rfc8446#section-4.2.0" class="relref">Section 4.2.0</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, authentication with the <code>pake</code> extension
+<span><a href="https://rfc-editor.org/rfc/rfc9846#section-4.3.9" class="relref">Section 4.3.9</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, authentication with the <code>pake</code> extension
 is always combined with the normal TLS key exchange mechanism. See <a href="#key-sched-mods" class="auto internal xref">Section 5.3</a> for details.<a href="#section-5.1-11" class="pilcrow">¶</a></p>
 <p id="section-5.1-12">Combining the <code>pake</code> extension with the normal TLS key exchange mechanism
 using a hybrid or PQ key agreement protects against Harvest Now Decrypt
@@ -1730,19 +1730,16 @@ TLS must provide the following details:<a href="#section-6.1-3" class="pilcrow">
 for example:<a href="#section-6.1-5" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-6.1-6.1">
-            <p id="section-6.1-6.1.1">CPace <span>[<a href="#CPACE" class="cite xref">CPACE</a>]</span><a href="#section-6.1-6.1.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-6.1.1">CPace (described in <a href="#cpace" class="auto internal xref">Section 6.3</a>) <span>[<a href="#CPACE" class="cite xref">CPACE</a>]</span><a href="#section-6.1-6.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-6.1-6.2">
-            <p id="section-6.1-6.2.1">SPAKE2+ (described in <a href="#spake2plus" class="auto internal xref">Section 6.2</a>) <span>[<a href="#RFC9383" class="cite xref">RFC9383</a>]</span><a href="#section-6.1-6.2.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-6.2.1">SPAKE2+ (described in <a href="#spake2plus" class="auto internal xref">Section 6.2</a>) <span>[<a href="#SPAKE2PLUS" class="cite xref">SPAKE2PLUS</a>]</span><a href="#section-6.1-6.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-6.1-6.3">
-            <p id="section-6.1-6.3.1">OPAQUE <span>[<a href="#OPAQUE" class="cite xref">OPAQUE</a>]</span><a href="#section-6.1-6.3.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-6.3.1">OQUAKE (described in <a href="#oquake" class="auto internal xref">Section 6.4</a>) <span>[<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span><a href="#section-6.1-6.3.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-6.1-6.4">
-            <p id="section-6.1-6.4.1">OQUAKE (described in <a href="#oquake" class="auto internal xref">Section 6.4</a>) <span>[<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span><a href="#section-6.1-6.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-6.1-6.5">
-            <p id="section-6.1-6.5.1">OQUAKE+ (described in <a href="#oquakeplus" class="auto internal xref">Section 6.5</a>) <span>[<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span><a href="#section-6.1-6.5.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-6.4.1">OQUAKE+ (described in <a href="#oquakeplus" class="auto internal xref">Section 6.5</a>) <span>[<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span><a href="#section-6.1-6.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -1797,9 +1794,9 @@ the values needed for the transcript derivation are as configured in <a href="#s
 exchanged over the wire, or computed by client and server.<a href="#section-6.2.2-3" class="pilcrow">¶</a></p>
 <p id="section-6.2.2-4">Using <code>K_main</code>, the client and server both compute <code>K_shared</code> which is combined with the
 <code>(EC)DHE</code> shared secret as input to the TLS 1.3 key schedule, where the (EC)DHE shared
-secret is as specified in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> or as the <code>concatenated_shared_secret</code>
-as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-hybrid-design-16#section-3.3" class="relref">Section 3.3</a> of [<a href="#I-D.ietf-tls-hybrid-design" class="cite xref">I-D.ietf-tls-hybrid-design</a>]</span>. Specifically, <code>K_shared || (EC)DHE</code> is used
-as the <code>(EC)DHE</code> input to the key schedule in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, as shown below.<a href="#section-6.2.2-4" class="pilcrow">¶</a></p>
+secret is as specified in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> or as the <code>concatenated_shared_secret</code>
+as specified in <span><a href="https://rfc-editor.org/rfc/rfc9954#section-3.3" class="relref">Section 3.3</a> of [<a href="#RFC9954" class="cite xref">RFC9954</a>]</span>. Specifically, <code>K_shared || (EC)DHE</code> is used
+as the <code>(EC)DHE</code> input to the key schedule in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, as shown below.<a href="#section-6.2.2-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.2.2-5">
 <pre>
                                     0
@@ -1884,10 +1881,10 @@ identifiers, and session identifiers) may be specified by the application, and
 will contribute to the derivation of <code>ISK</code>.<a href="#section-6.3.2-3" class="pilcrow">¶</a></p>
 <p id="section-6.3.2-4">The client and server both combine <code>ISK</code> with the <code>(EC)DHE</code> shared secret as
 input to the TLS 1.3 key schedule, where the (EC)DHE shared secret is as
-specified in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> or as the
-<code>concatenated_shared_secret</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-hybrid-design-16#section-3.3" class="relref">Section 3.3</a> of [<a href="#I-D.ietf-tls-hybrid-design" class="cite xref">I-D.ietf-tls-hybrid-design</a>]</span>.
+specified in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> or as the
+<code>concatenated_shared_secret</code> as specified in <span><a href="https://rfc-editor.org/rfc/rfc9954#section-3.3" class="relref">Section 3.3</a> of [<a href="#RFC9954" class="cite xref">RFC9954</a>]</span>.
 Specifically, <code>ISK || (EC)DHE</code> is used as the <code>(EC)DHE</code> input to the key
-schedule in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, as shown above in <a href="#spake2plus-run" class="auto internal xref">Section 6.2.2</a>.<a href="#section-6.3.2-4" class="pilcrow">¶</a></p>
+schedule in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, as shown above in <a href="#spake2plus-run" class="auto internal xref">Section 6.2.2</a>.<a href="#section-6.3.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1910,7 +1907,7 @@ The OQUAKE protocol is a post-quantum symmetric PAKE described in <span>[<a href
 the OQUAKE specification, respectively. The client and server must share a
 password-related string (PRS). The client and server may optionally be configured
 with a session identifier and client and server identifiers, as described in
-<span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-8.2" class="relref">Section 8.2</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.4.1-1" class="pilcrow">¶</a></p>
+<span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-8.2" class="relref">Section 8.2</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.4.1-1" class="pilcrow">¶</a></p>
 <p id="section-6.4.1-2">The PAKEScheme value for OQUAKE specifies the BUA-sKEM instance and KDF used
 by the protocol.<a href="#section-6.4.1-2" class="pilcrow">¶</a></p>
 </section>
@@ -1922,20 +1919,20 @@ by the protocol.<a href="#section-6.4.1-2" class="pilcrow">¶</a></p>
           </h4>
 <p id="section-6.4.2-1">The content of one PAKEShare value in the PAKEClientHello structure consists of
 the PAKEScheme value <code>OQUAKE_V1</code> and the output message from <code>OQUAKE.Init</code> as
-specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-8.2.1" class="relref">Section 8.2.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.4.2-1" class="pilcrow">¶</a></p>
+specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-8.2.1" class="relref">Section 8.2.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.4.2-1" class="pilcrow">¶</a></p>
 <p id="section-6.4.2-2">The content of the server PAKEShare value in the PAKEServerHello structure
 consists of the PAKEScheme value <code>OQUAKE_V1</code> and the output message from
-<code>OQUAKE.Respond</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-8.2.2" class="relref">Section 8.2.2</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.4.2-2" class="pilcrow">¶</a></p>
+<code>OQUAKE.Respond</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-8.2.2" class="relref">Section 8.2.2</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.4.2-2" class="pilcrow">¶</a></p>
 <p id="section-6.4.2-3">Given these messages, the client runs <code>OQUAKE.Finish</code> to derive the session key <code>SK</code>.
 The OQUAKE response message includes a key confirmation value <code>h</code>. The client
 <span class="bcp14">MUST</span> verify this value as part of <code>OQUAKE.Finish</code>. If verification fails,
 clients <span class="bcp14">SHOULD</span> abort the handshake with a "decrypt_error" alert.<a href="#section-6.4.2-3" class="pilcrow">¶</a></p>
 <p id="section-6.4.2-4">The client and server both combine <code>SK</code> with the <code>(EC)DHE</code> shared secret as
 input to the TLS 1.3 key schedule, where the (EC)DHE shared secret is as
-specified in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> or as the
-<code>concatenated_shared_secret</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-hybrid-design-16#section-3.3" class="relref">Section 3.3</a> of [<a href="#I-D.ietf-tls-hybrid-design" class="cite xref">I-D.ietf-tls-hybrid-design</a>]</span>.
+specified in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> or as the
+<code>concatenated_shared_secret</code> as specified in <span><a href="https://rfc-editor.org/rfc/rfc9954#section-3.3" class="relref">Section 3.3</a> of [<a href="#RFC9954" class="cite xref">RFC9954</a>]</span>.
 Specifically, <code>SK || (EC)DHE</code> is used as the <code>(EC)DHE</code> input to the key
-schedule in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, as shown above in <a href="#spake2plus-run" class="auto internal xref">Section 6.2.2</a>.<a href="#section-6.4.2-4" class="pilcrow">¶</a></p>
+schedule in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, as shown above in <a href="#spake2plus-run" class="auto internal xref">Section 6.2.2</a>.<a href="#section-6.4.2-4" class="pilcrow">¶</a></p>
 <p id="section-6.4.2-5">The OQUAKE <code>context</code> parameter is set to <code>None</code> for standalone use.
 The OQUAKE <code>sid</code> parameter <span class="bcp14">SHOULD</span> be left empty, relying on the TLS
 transcript binding via Finished messages for session uniqueness.
@@ -1962,11 +1959,11 @@ OQUAKE+ is a post-quantum asymmetric PAKE (aPAKE) described in <span>[<a href="#
 the OQUAKE+ specification, respectively. Clients are configured with a client
 identity, server identity, password-related string (PRS), and salt. Clients use
 these to derive a verifier and seed via <code>GenVerifierMaterial</code> as described in
-<span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-9.1.1" class="relref">Section 9.1.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.5.1-1" class="pilcrow">¶</a></p>
+<span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-9.1.1" class="relref">Section 9.1.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.5.1-1" class="pilcrow">¶</a></p>
 <p id="section-6.5.1-2">Similarly, servers are configured with a list of client identity, server identity,
 verifier, public key (pk), and salt values. Servers use the verifier and public key
 when completing the OQUAKE+ protocol. The values for the verifier and public key
-are generated using <code>GenVerifiers</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-9.1.1" class="relref">Section 9.1.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.5.1-2" class="pilcrow">¶</a></p>
+are generated using <code>GenVerifiers</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-9.1.1" class="relref">Section 9.1.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>.<a href="#section-6.5.1-2" class="pilcrow">¶</a></p>
 <p id="section-6.5.1-3">The PAKEScheme value for OQUAKE+ specifies the BUA-sKEM instance, KEM instance,
 KDF, and KSF used by the protocol.<a href="#section-6.5.1-3" class="pilcrow">¶</a></p>
 </section>
@@ -1978,15 +1975,15 @@ KDF, and KSF used by the protocol.<a href="#section-6.5.1-3" class="pilcrow">¶<
           </h4>
 <p id="section-6.5.2-1">The content of one PAKEShare value in the PAKEClientHello structure consists of
 the PAKEScheme value <code>OQUAKE_PLUS_V1</code> and the output message from <code>OQUAKE+.Init</code>
-as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-9.2.1" class="relref">Section 9.2.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>, using the verifier as the
+as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-9.2.1" class="relref">Section 9.2.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>, using the verifier as the
 password-related string.<a href="#section-6.5.2-1" class="pilcrow">¶</a></p>
 <p id="section-6.5.2-2">The content of the server PAKEShare value in the PAKEServerHello structure
 consists of the PAKEScheme value <code>OQUAKE_PLUS_V1</code> and the output message from
-<code>OQUAKE+.Respond</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-9.2.2" class="relref">Section 9.2.2</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>, using the verifier
+<code>OQUAKE+.Respond</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-9.2.2" class="relref">Section 9.2.2</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>, using the verifier
 as the password-related string and the client's registered public key.<a href="#section-6.5.2-2" class="pilcrow">¶</a></p>
 <p id="section-6.5.2-3">Upon receiving the client's PAKEShare <code>pake_message</code> (denoted <code>init_msg</code>),
 the server produces the response message and derives its shared secret by
-invoking <code>OQUAKE+.Respond</code>, as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-9.2.2" class="relref">Section 9.2.2</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>:<a href="#section-6.5.2-3" class="pilcrow">¶</a></p>
+invoking <code>OQUAKE+.Respond</code>, as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-9.2.2" class="relref">Section 9.2.2</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>:<a href="#section-6.5.2-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.5.2-4">
 <pre>
 state, resp_msg = OQUAKE+.Respond(PRS, public_context, secret_context,
@@ -2009,10 +2006,11 @@ message from the client, which serves as confirmation that the client
 derived the correct shared secret.<a href="#section-6.5.2-7" class="pilcrow">¶</a></p>
 <p id="section-6.5.2-8">Upon receiving the server's PAKEShare <code>pake_message</code> (denoted <code>resp_msg</code>),
 the client derives its shared secret by invoking <code>OQUAKE+.Finish</code>, as
-specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-9.2.3" class="relref">Section 9.2.3</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>:<a href="#section-6.5.2-8" class="pilcrow">¶</a></p>
+specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-9.2.3" class="relref">Section 9.2.3</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>:<a href="#section-6.5.2-8" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.5.2-9">
 <pre>
-client_key, response = OQUAKE+.Finish(state, seed, resp_msg, public_context)
+client_key, response = OQUAKE+.Finish(state, seed, resp_msg,
+                                      public_context)
 </pre><a href="#section-6.5.2-9" class="pilcrow">¶</a>
 </div>
 <p id="section-6.5.2-10">Here, <code>state</code> is the opaque state produced by the client's earlier call to
@@ -2028,10 +2026,10 @@ handshake with a "decrypt_error" alert.<a href="#section-6.5.2-11" class="pilcro
 <p id="section-6.5.2-12">The client and server both combine their PAKE shared secret (<code>client_key</code> and
 <code>server_key</code>, respectively) with the <code>(EC)DHE</code> shared secret as input to the
 TLS 1.3 key schedule, where the (EC)DHE shared secret is as
-specified in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> or as the
-<code>concatenated_shared_secret</code> as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-hybrid-design-16#section-3.3" class="relref">Section 3.3</a> of [<a href="#I-D.ietf-tls-hybrid-design" class="cite xref">I-D.ietf-tls-hybrid-design</a>]</span>.
+specified in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span> or as the
+<code>concatenated_shared_secret</code> as specified in <span><a href="https://rfc-editor.org/rfc/rfc9954#section-3.3" class="relref">Section 3.3</a> of [<a href="#RFC9954" class="cite xref">RFC9954</a>]</span>.
 Specifically, <code>client_key || (EC)DHE</code> is used as the <code>(EC)DHE</code> input to the key
-schedule in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, as shown above in <a href="#spake2plus-run" class="auto internal xref">Section 6.2.2</a>.<a href="#section-6.5.2-12" class="pilcrow">¶</a></p>
+schedule in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-7.1" class="relref">Section 7.1</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>, as shown above in <a href="#spake2plus-run" class="auto internal xref">Section 6.2.2</a>.<a href="#section-6.5.2-12" class="pilcrow">¶</a></p>
 <p id="section-6.5.2-13">The <code>secret_context</code> input to <code>OQUAKE+.Respond</code> and <code>OQUAKE+.Finish</code> is set
 to <code>None</code> for standalone use of OQUAKE+ as an Internal PAKE; it is not <code>None</code>
 when OQUAKE+ is composed with CPace, as in <a href="#external-pakes" class="auto internal xref">Section 7</a>.<a href="#section-6.5.2-13" class="pilcrow">¶</a></p>
@@ -2255,7 +2253,7 @@ applications to control channel configuration.<a href="#section-7.3.1-3" class="
 <p id="section-7.3.2-1">The TLS client and server roles map to the 'initiator' and 'responder' roles in
 both the CPace and OQUAKE+ specifications, respectively. Clients are configured
 with a password, client and server identities, and OQUAKE+ verifier material per
-<span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake-latest#section-9.1.1" class="relref">Section 9.1.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>. Servers are configured with corresponding password
+<span><a href="https://datatracker.ietf.org/doc/html/draft-vos-cfrg-pqpake#section-9.1.1" class="relref">Section 9.1.1</a> of [<a href="#PQPAKE" class="cite xref">PQPAKE</a>]</span>. Servers are configured with corresponding password
 information and OQUAKE+ public key material.<a href="#section-7.3.2-1" class="pilcrow">¶</a></p>
 <p id="section-7.3.2-2">Both parties must support CPace and OQUAKE+ protocols for out-of-band execution.
 Applications configure out-of-band communication channels and TLS endpoints
@@ -2284,7 +2282,8 @@ Client                                Server
   |&lt;-- OQUAKE+.Respond ----------------|
   | (both derive hybrid_secret)        |
   |                                    |
-  | (both: external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK", context))
+  | (both: external_psk = Import(hybrid_secret,
+  |        "TLS 1.3 CPaceOQUAKE+ PSK", context))
   |                                    |
   |-- TLS ClientHello ----------------&gt;|
   |    (with PSK extension)            |
@@ -2299,7 +2298,8 @@ Client                                Server
 <div class="alignLeft art-text artwork" id="section-7.3.3-5">
 <pre>
 - client_cpace_msg = CPace.Init(password, identities)
-- server_cpace_msg = CPace.Respond(client_cpace_msg, password, identities)
+- server_cpace_msg = CPace.Respond(client_cpace_msg, password,
+                                   identities)
 - cpace_isk = CPace.Finish(server_cpace_msg)  // Both parties derive ISK
 </pre><a href="#section-7.3.3-5" class="pilcrow">¶</a>
 </div>
@@ -2307,9 +2307,12 @@ Client                                Server
 This consists of the following:<a href="#section-7.3.3-6" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-7.3.3-7">
 <pre>
-- client_oquake_msg = OQUAKE+.Init(verifier, context=cpace_isk, identities)
-- server_oquake_msg = OQUAKE+.Respond(client_oquake_msg, verifier, pk, context=cpace_isk)
-- hybrid_secret = OQUAKE+.Finish(server_oquake_msg)  // Both parties derive final secret
+- client_oquake_msg = OQUAKE+.Init(verifier, context=cpace_isk,
+                                   identities)
+- server_oquake_msg = OQUAKE+.Respond(client_oquake_msg, verifier,
+                                      pk, context=cpace_isk)
+- hybrid_secret = OQUAKE+.Finish(server_oquake_msg)
+  // Both parties derive final secret
 </pre><a href="#section-7.3.3-7" class="pilcrow">¶</a>
 </div>
 <p id="section-7.3.3-8">The CPace ISK serves as context input for OQUAKE+ per the sequential combiner
@@ -2320,7 +2323,8 @@ from the hybrid secret using <span>[<a href="#RFC9258" class="cite xref">RFC9258
 This consists of the following:<a href="#section-7.3.3-9" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-7.3.3-10">
 <pre>
-- external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK", context) // From RFC9258
+- external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK",
+                        context)  // From RFC9258
 - psk_identity = application_defined_identifier
 - Standard TLS 1.3 PSK handshake using (external_psk, psk_identity)
 </pre><a href="#section-7.3.3-10" class="pilcrow">¶</a>
@@ -2340,7 +2344,7 @@ This consists of the following:<a href="#section-7.3.3-9" class="pilcrow">¶</a>
               <p id="section-7.3.3-12.4.1">hash: Hash function matching the TLS cipher suite<a href="#section-7.3.3-12.4.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-7.3.3-13">The TLS integration uses standard TLS 1.3 PSK mechanisms per <span><a href="https://rfc-editor.org/rfc/rfc8446#section-4.2.11" class="relref">Section 4.2.11</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>.
+<p id="section-7.3.3-13">The TLS integration uses standard TLS 1.3 PSK mechanisms per <span><a href="https://rfc-editor.org/rfc/rfc9846#section-4.3.11" class="relref">Section 4.3.11</a> of [<a href="#TLS13" class="cite xref">TLS13</a>]</span>.
 The PSK identity can be application-defined, with session correlation handled at the
 application layer.<a href="#section-7.3.3-13" class="pilcrow">¶</a></p>
 </section>
@@ -2716,6 +2720,18 @@ Recommended and Comment columns and a registration policy<a href="#section-12-2.
           <p id="section-12-2.3.1">Move PAKEScheme parameter definitions out of IANA Considerations
 into a new PAKE Schemes section<a href="#section-12-2.3.1" class="pilcrow">¶</a></p>
 </li>
+        <li class="normal" id="section-12-2.4">
+          <p id="section-12-2.4.1">Remove OPAQUE from the list of example Internal PAKEs<a href="#section-12-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-2.5">
+          <p id="section-12-2.5.1">Cite RFC 9846 for TLS 1.3 and update section references<a href="#section-12-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-2.6">
+          <p id="section-12-2.6.1">Cite RFC 9954 and RFC 9849 instead of the drafts that became them<a href="#section-12-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-2.7">
+          <p id="section-12-2.7.1">Editorial fixes from I-D nits review<a href="#section-12-2.7.1" class="pilcrow">¶</a></p>
+</li>
       </ul>
 <p id="section-12-3">Since draft-ietf-tls-pake-01<a href="#section-12-3" class="pilcrow">¶</a></p>
 <ul class="normal">
@@ -2789,13 +2805,9 @@ to prevent cross-protocol attacks<a href="#section-12-6.6.1" class="pilcrow">¶<
         <dd>
 <span class="refAuthor">Abdalla, M.</span>, <span class="refAuthor">Haase, B.</span>, and <span class="refAuthor">J. Hesse</span>, <span class="refTitle">"CPace, a balanced composable PAKE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-cpace-21</span>, <time datetime="2026-04-22" class="refDate">22 April 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-21">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-cpace-21</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="I-D.ietf-tls-hybrid-design">[I-D.ietf-tls-hybrid-design]</dt>
-        <dd>
-<span class="refAuthor">Stebila, D.</span>, <span class="refAuthor">Fluhrer, S.</span>, and <span class="refAuthor">S. Gueron</span>, <span class="refTitle">"Hybrid key exchange in TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-hybrid-design-16</span>, <time datetime="2025-09-07" class="refDate">7 September 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-hybrid-design-16">https://datatracker.ietf.org/doc/html/draft-ietf-tls-hybrid-design-16</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="PQPAKE">[PQPAKE]</dt>
         <dd>
-<span class="refAuthor">Vos, J.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hybrid Post-Quantum Password Authenticated Key Exchange"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-vos-cfrg-pqpake-latest</span>, <time datetime="2026" class="refDate">2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-vos-cfrg-pqpake/">https://datatracker.ietf.org/doc/draft-vos-cfrg-pqpake/</a>&gt;</span>. </dd>
+<span class="refAuthor">Vos, J.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hybrid Post-Quantum Password Authenticated Key Exchange"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-vos-cfrg-pqpake</span>, <time datetime="2026" class="refDate">2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-vos-cfrg-pqpake/">https://datatracker.ietf.org/doc/draft-vos-cfrg-pqpake/</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
@@ -2809,13 +2821,13 @@ to prevent cross-protocol attacks<a href="#section-12-6.6.1" class="pilcrow">¶<
         <dd>
 <span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Tschofenig, H.</span>, and <span class="refAuthor">N. Modadugu</span>, <span class="refTitle">"The Datagram Transport Layer Security (DTLS) Protocol Version 1.3"</span>, <span class="seriesInfo">RFC 9147</span>, <span class="seriesInfo">DOI 10.17487/RFC9147</span>, <time datetime="2022-04" class="refDate">April 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9147">https://www.rfc-editor.org/rfc/rfc9147</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC9383">[RFC9383]</dt>
-        <dd>
-<span class="refAuthor">Taubert, T.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"SPAKE2+, an Augmented Password-Authenticated Key Exchange (PAKE) Protocol"</span>, <span class="seriesInfo">RFC 9383</span>, <span class="seriesInfo">DOI 10.17487/RFC9383</span>, <time datetime="2023-09" class="refDate">September 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9383">https://www.rfc-editor.org/rfc/rfc9383</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC9847">[RFC9847]</dt>
         <dd>
 <span class="refAuthor">Salowey, J.</span> and <span class="refAuthor">S. Turner</span>, <span class="refTitle">"IANA Registry Updates for TLS and DTLS"</span>, <span class="seriesInfo">RFC 9847</span>, <span class="seriesInfo">DOI 10.17487/RFC9847</span>, <time datetime="2025-12" class="refDate">December 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9847">https://www.rfc-editor.org/rfc/rfc9847</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9954">[RFC9954]</dt>
+        <dd>
+<span class="refAuthor">Stebila, D.</span>, <span class="refAuthor">Fluhrer, S.</span>, and <span class="refAuthor">S. Gueron</span>, <span class="refTitle">"Hybrid Key Exchange in TLS 1.3"</span>, <span class="seriesInfo">RFC 9954</span>, <span class="seriesInfo">DOI 10.17487/RFC9954</span>, <time datetime="2026-07" class="refDate">July 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9954">https://www.rfc-editor.org/rfc/rfc9954</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="SPAKE2PLUS">[SPAKE2PLUS]</dt>
         <dd>
@@ -2823,11 +2835,11 @@ to prevent cross-protocol attacks<a href="#section-12-6.6.1" class="pilcrow">¶<
 <dd class="break"></dd>
 <dt id="TLS13">[TLS13]</dt>
         <dd>
-<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="seriesInfo">RFC 8446</span>, <span class="seriesInfo">DOI 10.17487/RFC8446</span>, <time datetime="2018-08" class="refDate">August 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8446">https://www.rfc-editor.org/rfc/rfc8446</a>&gt;</span>. </dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="seriesInfo">RFC 9846</span>, <span class="seriesInfo">DOI 10.17487/RFC9846</span>, <time datetime="2026-07" class="refDate">July 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9846">https://www.rfc-editor.org/rfc/rfc9846</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="XWING">[XWING]</dt>
       <dd>
-<span class="refAuthor">Connolly, D.</span>, <span class="refAuthor">Schwabe, P.</span>, and <span class="refAuthor">B. Westerbaan</span>, <span class="refTitle">"X-Wing: The Hybrid KEM You've Been Looking For"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-connolly-cfrg-xwing-kem-latest</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/">https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/</a>&gt;</span>. </dd>
+<span class="refAuthor">Connolly, D.</span>, <span class="refAuthor">Schwabe, P.</span>, and <span class="refAuthor">B. Westerbaan</span>, <span class="refTitle">"X-Wing: The Hybrid KEM You've Been Looking For"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-connolly-cfrg-xwing-kem</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/">https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -2844,15 +2856,11 @@ to prevent cross-protocol attacks<a href="#section-12-6.6.1" class="pilcrow">¶<
 <dd class="break"></dd>
 <dt id="ECH">[ECH]</dt>
         <dd>
-<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Oku, K.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"TLS Encrypted Client Hello"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-esni-25</span>, <time datetime="2025-06-14" class="refDate">14 June 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-25">https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-25</a>&gt;</span>. </dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Oku, K.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"TLS Encrypted Client Hello"</span>, <span class="seriesInfo">RFC 9849</span>, <span class="seriesInfo">DOI 10.17487/RFC9849</span>, <time datetime="2026-03" class="refDate">March 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9849">https://www.rfc-editor.org/rfc/rfc9849</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="FIRST-DRAFT">[FIRST-DRAFT]</dt>
         <dd>
 <span class="refAuthor">Barnes, R.</span> and <span class="refAuthor">O. Friel</span>, <span class="refTitle">"Usage of PAKE with TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-barnes-tls-pake-04</span>, <time datetime="2018-07-16" class="refDate">16 July 2018</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-barnes-tls-pake-04">https://datatracker.ietf.org/doc/html/draft-barnes-tls-pake-04</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="OPAQUE">[OPAQUE]</dt>
-        <dd>
-<span class="refAuthor">Bourdrez, D.</span>, <span class="refAuthor">Krawczyk, H.</span>, <span class="refAuthor">Lewi, K.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"The OPAQUE Augmented PAKE Protocol"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-opaque-18</span>, <time datetime="2024-11-21" class="refDate">21 November 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-opaque-18">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-opaque-18</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC5054">[RFC5054]</dt>
         <dd>
