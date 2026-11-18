@@ -1095,10 +1095,21 @@ document.
 # Change Log
 {:numbered="false"}
 
+Since draft-ietf-tls-pake-02
+
+* Address IANA review: add DTLS-Only, Recommended, and Comment fields to
+  the `pake` ExtensionType registration; rename the new registry to
+  "TLS PAKE Schemes" in the TLS Parameters registry group, with
+  Recommended and Comment columns and a registration policy
+* Mark new registry entries "For TLS 1.3 or later" per RFC 9851
+* Move PAKEScheme parameter definitions out of IANA Considerations
+  into a new PAKE Schemes section
+
 Since draft-ietf-tls-pake-01
 
 * Add internal and external PAKE distinction
 * Add OQUAKE and OQUAKE+ from draft-vos-cfrg-pqpake.
+* Add CPaceOQUAKE+ as an External PAKE using External PSK Import
 
 Since draft-ietf-tls-pake-00
 
