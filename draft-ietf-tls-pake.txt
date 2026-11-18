@@ -5,11 +5,11 @@
 Transport Layer Security                                       L. Bauman
 Internet-Draft                                               Apple, Inc.
 Intended status: Informational                               D. Benjamin
-Expires: 7 January 2027                                       Google LLC
+Expires: 22 May 2027                                          Google LLC
                                                                 S. Menon
                                                               C. A. Wood
                                                              Apple, Inc.
-                                                             6 July 2026
+                                                        18 November 2026
 
 
       A Password Authenticated Key Exchange Extension for TLS 1.3
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 January 2027.
+   This Internet-Draft will expire on 22 May 2027.
 
 Copyright Notice
 
@@ -95,6 +95,11 @@ Table of Contents
      6.5.  OQUAKE+ Integration
        6.5.1.  Protocol Setup
        6.5.2.  Protocol Execution
+     6.6.  PAKE Schemes
+       6.6.1.  SPAKE2PLUS_V1
+       6.6.2.  CPACE_X25519_SHA512
+       6.6.3.  OQUAKE_V1
+       6.6.4.  OQUAKE_PLUS_V1
    7.  External PAKE Integration
      7.1.  Overview
      7.2.  General Framework
@@ -116,7 +121,8 @@ Table of Contents
      9.5.  External PAKE Security Considerations
        9.5.1.  CPaceOQUAKE+ Security Considerations
    10. IANA Considerations
-     10.1.  PAKE Scheme registry
+     10.1.  TLS ExtensionType Values
+     10.2.  TLS PAKE Schemes Registry
    Acknowledgments
    Change Log
    References
@@ -760,6 +766,74 @@ client_key, response = OQUAKE+.Finish(state, seed, resp_msg, public_context)
    to None for standalone use of OQUAKE+ as an Internal PAKE; it is not
    None when OQUAKE+ is composed with CPace, as in Section 7.
 
+6.6.  PAKE Schemes
+
+   This section defines the PAKEScheme values used in this document.
+   Each PAKEScheme value identifies a PAKE protocol together with all of
+   its parameters.  Other documents can define new PAKEScheme values;
+   see Section 10.2.
+
+6.6.1.  SPAKE2PLUS_V1
+
+   The SPAKE2PLUS_V1 PAKEScheme variant uses SPAKE2+ as described in
+   Section 6.2, and has the following parameters associated with it:
+
+   *  G: P-256
+
+   *  Hash: SHA256
+
+   *  KDF: HKDF-SHA256
+
+   *  MAC: HMAC-SHA256
+
+   Additionally, it uses the M and N values from Section 4 of
+   [SPAKE2PLUS], included below, as compressed points on the P-256
+   curve, for completeness.
+
+   M =
+   02886e2f97ace46e55ba9dd7242579f2993b64e16ef3dcab95afd497333d8fa12f
+
+   N =
+   03d8bbd6c639c62937b04d997f38c3770719c629d7014d49a24b4f98baa1292b49
+
+6.6.2.  CPACE_X25519_SHA512
+
+   The CPACE_X25519_SHA512 PAKEScheme variant uses CPace as described in
+   Section 6.3, and has the parameters for 'CPACE-X25519-SHA512' as
+   specified in Section 4 of [CPACE].
+
+6.6.3.  OQUAKE_V1
+
+   The OQUAKE_V1 PAKEScheme variant uses OQUAKE as described in
+   Section 6.4, and has the following parameters associated with it:
+
+   *  BUA-sKEM: ML-BUA-sKEM1024
+
+   *  KDF: HKDF-SHA-256
+
+   *  DST: as specified in [PQPAKE]
+
+   These parameters correspond to the RECOMMENDED configuration in
+   [PQPAKE].
+
+6.6.4.  OQUAKE_PLUS_V1
+
+   The OQUAKE_PLUS_V1 PAKEScheme variant uses OQUAKE+ as described in
+   Section 6.5, and has the following parameters associated with it:
+
+   *  BUA-sKEM: ML-BUA-sKEM1024
+
+   *  KEM: X-Wing [XWING]
+
+   *  KDF: HKDF-SHA-256
+
+   *  KSF: Argon2id [ARGON2] (parameters as specified in [PQPAKE])
+
+   *  DST: as specified in [PQPAKE]
+
+   These parameters correspond to the RECOMMENDED configuration in
+   [PQPAKE].
+
 7.  External PAKE Integration
 
 7.1.  Overview
@@ -1103,92 +1177,81 @@ Client                                Server
 
 10.  IANA Considerations
 
-   This document requests that IANA add a value to the TLS ExtensionType
-   Registry with the following contents:
+10.1.  TLS ExtensionType Values
 
-          +========+================+=========+=================+
-          | Value  | Extension Name | TLS 1.3 |    Reference    |
-          +========+================+=========+=================+
-          | 0xTODO | pake           |  CH, SH | (this document) |
-          +--------+----------------+---------+-----------------+
+   This document requests that IANA add a value to the "TLS
+   ExtensionType Values" registry with the following contents:
 
-                                  Table 1
+   +======+=========+===+===========+=============+===========+=======+
+   |Value |Extension|TLS| DTLS-Only | Recommended | Reference |Comment|
+   |      |Name     |1.3|           |             |           |       |
+   +======+=========+===+===========+=============+===========+=======+
+   |0xTODO|pake     |CH,|     N     |      N      |   (this   |For TLS|
+   |      |         | SH|           |             | document) |1.3 or |
+   |      |         |   |           |             |           |later  |
+   +------+---------+---+-----------+-------------+-----------+-------+
+
+                                 Table 1
 
    RFC EDITOR: Please replace "TODO" in the above table with the value
    assigned by IANA, and replace "(this document)" with the RFC number
    assigned to this document.
 
-10.1.  PAKE Scheme registry
+10.2.  TLS PAKE Schemes Registry
 
-   This document requests that IANA create a new registry called "PAKE
-   Schemes" for internal PAKEs (those negotiated with the PAKE
-   extension) with the following contents:
+   This document requests that IANA create a new registry called "TLS
+   PAKE Schemes" in the "Transport Layer Security (TLS) Parameters"
+   registry group.  This registry lists the PAKEScheme values used with
+   the pake extension.  New registrations will list the following
+   attributes:
 
-        +========+=====================+=================+=======+
-        | Value  | PAKEScheme          |    Reference    | Notes |
-        +========+=====================+=================+=======+
-        | 0xTODO | SPAKE2PLUS_V1       | (this document) | N/A   |
-        +--------+---------------------+-----------------+-------+
-        | 0xTODO | CPACE_X25519_SHA512 | (this document) | N/A   |
-        +--------+---------------------+-----------------+-------+
-        | 0xTODO | OQUAKE_V1           | (this document) | N/A   |
-        +--------+---------------------+-----------------+-------+
-        | 0xTODO | OQUAKE_PLUS_V1      | (this document) | N/A   |
-        +--------+---------------------+-----------------+-------+
+   Value:  The two-byte PAKEScheme identifier
+
+   PAKEScheme:  The name of the PAKEScheme
+
+   Recommended:  A "Y", "N", or "D" value, as defined in Section 3 of
+      [RFC9847].  This column is set to "N" unless explicitly requested.
+      Setting a value to "Y" or "D" requires IETF Standards Action with
+      Expert Review or IESG Approval [RFC8126].
+
+   Reference:  The document that defines the PAKEScheme
+
+   Comment:  Any comments about the entry
+
+   New entries in the "TLS PAKE Schemes" registry are subject to the
+   Specification Required registration policy (Section 4.6 of
+   [RFC8126]), with the policies described in Section 16 of [RFC9847].
+
+   All entries in this registry are for TLS 1.3 or later, as described
+   in [RFC9851].
+
+   The initial contents of the registry are:
+
+   +========+=====================+=============+===========+=========+
+   | Value  | PAKEScheme          | Recommended | Reference | Comment |
+   +========+=====================+=============+===========+=========+
+   | 0xTODO | SPAKE2PLUS_V1       |      N      |   (this   | For TLS |
+   |        |                     |             | document) | 1.3 or  |
+   |        |                     |             |           | later   |
+   +--------+---------------------+-------------+-----------+---------+
+   | 0xTODO | CPACE_X25519_SHA512 |      N      |   (this   | For TLS |
+   |        |                     |             | document) | 1.3 or  |
+   |        |                     |             |           | later   |
+   +--------+---------------------+-------------+-----------+---------+
+   | 0xTODO | OQUAKE_V1           |      N      |   (this   | For TLS |
+   |        |                     |             | document) | 1.3 or  |
+   |        |                     |             |           | later   |
+   +--------+---------------------+-------------+-----------+---------+
+   | 0xTODO | OQUAKE_PLUS_V1      |      N      |   (this   | For TLS |
+   |        |                     |             | document) | 1.3 or  |
+   |        |                     |             |           | later   |
+   +--------+---------------------+-------------+-----------+---------+
 
                                  Table 2
 
-   The SPAKE2PLUS_V1 PAKEScheme variant has the following parameters
-   associated with it:
-
-   *  G: P-256
-
-   *  Hash: SHA256
-
-   *  KDF: HKDF-SHA256
-
-   *  MAC: HMAC-SHA256
-
-   Additionally, it uses the M and N values from Section 4 of
-   [SPAKE2PLUS], included below, as compressed points on the P-256
-   curve, for completeness.
-
-   M =
-   02886e2f97ace46e55ba9dd7242579f2993b64e16ef3dcab95afd497333d8fa12f
-
-   N =
-   03d8bbd6c639c62937b04d997f38c3770719c629d7014d49a24b4f98baa1292b49
-
-   The CPACE_X25519_SHA512 PAKEScheme variant has the parameters for
-   'CPACE-X25519-SHA512' as specified in Section 4 of [CPACE].
-
-   The OQUAKE_V1 PAKEScheme variant has the following parameters
-   associated with it:
-
-   *  BUA-sKEM: ML-BUA-sKEM1024
-
-   *  KDF: HKDF-SHA-256
-
-   *  DST: as specified in [PQPAKE]
-
-   These parameters correspond to the RECOMMENDED configuration in
-   [PQPAKE].
-
-   The OQUAKE_PLUS_V1 PAKEScheme variant has the following parameters
-   associated with it:
-
-   *  BUA-sKEM: ML-BUA-sKEM1024
-
-   *  KEM: X-Wing [XWING]
-
-   *  KDF: HKDF-SHA-256
-
-   *  KSF: Argon2id [ARGON2] (parameters as specified in [PQPAKE])
-
-   *  DST: as specified in [PQPAKE]
-
-   These parameters correspond to the RECOMMENDED configuration in
-   [PQPAKE].
+   RFC EDITOR: Please replace "TODO" in the above table with the values
+   assigned by IANA, and replace "(this document)" with the RFC number
+   assigned to this document.
 
 Acknowledgments
 
@@ -1198,11 +1261,26 @@ Acknowledgments
 
 Change Log
 
+   Since draft-ietf-tls-pake-02
+
+   *  Address IANA review: add DTLS-Only, Recommended, and Comment
+      fields to the pake ExtensionType registration; rename the new
+      registry to "TLS PAKE Schemes" in the TLS Parameters registry
+      group, with Recommended and Comment columns and a registration
+      policy
+
+   *  Mark new registry entries "For TLS 1.3 or later" per RFC 9851
+
+   *  Move PAKEScheme parameter definitions out of IANA Considerations
+      into a new PAKE Schemes section
+
    Since draft-ietf-tls-pake-01
 
    *  Add internal and external PAKE distinction
 
    *  Add OQUAKE and OQUAKE+ from draft-vos-cfrg-pqpake.
+
+   *  Add CPaceOQUAKE+ as an External PAKE using External PSK Import
 
    Since draft-ietf-tls-pake-00
 
@@ -1276,6 +1354,10 @@ Normative References
               RFC 9383, DOI 10.17487/RFC9383, September 2023,
               <https://www.rfc-editor.org/rfc/rfc9383>.
 
+   [RFC9847]  Salowey, J. and S. Turner, "IANA Registry Updates for TLS
+              and DTLS", RFC 9847, DOI 10.17487/RFC9847, December 2025,
+              <https://www.rfc-editor.org/rfc/rfc9847>.
+
    [SPAKE2PLUS]
               Taubert, T. and C. A. Wood, "SPAKE2+, an Augmented
               Password-Authenticated Key Exchange (PAKE) Protocol",
@@ -1321,10 +1403,19 @@ Informative References
               Authentication", RFC 5054, DOI 10.17487/RFC5054, November
               2007, <https://www.rfc-editor.org/rfc/rfc5054>.
 
+   [RFC8126]  Cotton, M., Leiba, B., and T. Narten, "Guidelines for
+              Writing an IANA Considerations Section in RFCs", BCP 26,
+              RFC 8126, DOI 10.17487/RFC8126, June 2017,
+              <https://www.rfc-editor.org/rfc/rfc8126>.
+
    [RFC9258]  Benjamin, D. and C. A. Wood, "Importing External Pre-
               Shared Keys (PSKs) for TLS 1.3", RFC 9258,
               DOI 10.17487/RFC9258, July 2022,
               <https://www.rfc-editor.org/rfc/rfc9258>.
+
+   [RFC9851]  Salz, R. and N. Aviram, "TLS 1.2 is in Feature Freeze",
+              RFC 9851, DOI 10.17487/RFC9851, July 2026,
+              <https://www.rfc-editor.org/rfc/rfc9851>.
 
 Authors' Addresses
 
