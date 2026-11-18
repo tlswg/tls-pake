@@ -1110,6 +1110,10 @@ Since draft-ietf-tls-pake-02
 * Mark new registry entries "For TLS 1.3 or later" per RFC 9851
 * Move PAKEScheme parameter definitions out of IANA Considerations
   into a new PAKE Schemes section
+* Remove OPAQUE from the list of example Internal PAKEs
+* Cite RFC 9846 for TLS 1.3 and update section references
+* Cite RFC 9954 and RFC 9849 instead of the drafts that became them
+* Editorial fixes from I-D nits review
 
 Since draft-ietf-tls-pake-01
 
