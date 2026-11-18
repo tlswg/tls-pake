@@ -2705,56 +2705,87 @@ document.<a href="#section-11-1" class="pilcrow">¶</a></p>
       <h2 id="name-change-log">
 <a href="#name-change-log" class="section-name selfRef">Change Log</a>
       </h2>
-<p id="section-12-1">Since draft-ietf-tls-pake-01<a href="#section-12-1" class="pilcrow">¶</a></p>
+<p id="section-12-1">Since draft-ietf-tls-pake-02<a href="#section-12-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-12-2.1">
-          <p id="section-12-2.1.1">Add internal and external PAKE distinction<a href="#section-12-2.1.1" class="pilcrow">¶</a></p>
+          <p id="section-12-2.1.1">Address IANA review: add DTLS-Only, Recommended, and Comment fields to
+the <code>pake</code> ExtensionType registration; rename the new registry to
+"TLS PAKE Schemes" in the TLS Parameters registry group, with
+Recommended and Comment columns and a registration policy<a href="#section-12-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-12-2.2">
-          <p id="section-12-2.2.1">Add OQUAKE and OQUAKE+ from draft-vos-cfrg-pqpake.<a href="#section-12-2.2.1" class="pilcrow">¶</a></p>
+          <p id="section-12-2.2.1">Mark new registry entries "For TLS 1.3 or later" per RFC 9851<a href="#section-12-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-2.3">
+          <p id="section-12-2.3.1">Move PAKEScheme parameter definitions out of IANA Considerations
+into a new PAKE Schemes section<a href="#section-12-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-2.4">
+          <p id="section-12-2.4.1">Remove OPAQUE from the list of example Internal PAKEs<a href="#section-12-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-2.5">
+          <p id="section-12-2.5.1">Cite RFC 9846 for TLS 1.3 and update section references<a href="#section-12-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-2.6">
+          <p id="section-12-2.6.1">Cite RFC 9954 and RFC 9849 instead of the drafts that became them<a href="#section-12-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-2.7">
+          <p id="section-12-2.7.1">Editorial fixes from I-D nits review<a href="#section-12-2.7.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-12-3">Since draft-ietf-tls-pake-00<a href="#section-12-3" class="pilcrow">¶</a></p>
+<p id="section-12-3">Since draft-ietf-tls-pake-01<a href="#section-12-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-12-4.1">
-          <p id="section-12-4.1.1">Add CPace as a second PAKE instantiation<a href="#section-12-4.1.1" class="pilcrow">¶</a></p>
+          <p id="section-12-4.1.1">Add internal and external PAKE distinction<a href="#section-12-4.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-12-4.2">
-          <p id="section-12-4.2.1">Require PAKE protocols to complete in exactly two messages
-(ClientHello and ServerHello)<a href="#section-12-4.2.1" class="pilcrow">¶</a></p>
+          <p id="section-12-4.2.1">Add OQUAKE and OQUAKE+ from draft-vos-cfrg-pqpake.<a href="#section-12-4.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-12-4.3">
-          <p id="section-12-4.3.1">Require PAKE protocols to support key confirmation via TLS 1.3
-Finished messages<a href="#section-12-4.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-4.4">
-          <p id="section-12-4.4.1">Clarify server behavior when both pake and pre_shared_key
-extensions are present: server <span class="bcp14">MUST</span> select authentication
-mechanism based on preference, not client identity recognition<a href="#section-12-4.4.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-4.5">
-          <p id="section-12-4.5.1">Add explicit requirement that server <span class="bcp14">MUST</span> send missing_extension
-alert if pake extension is present without key_share and
-supported_groups extensions<a href="#section-12-4.5.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-12-4.6">
-          <p id="section-12-4.6.1">Specify that SPAKE2+ Context string <span class="bcp14">MUST</span> be prefixed with "tls"
-to prevent cross-protocol attacks<a href="#section-12-4.6.1" class="pilcrow">¶</a></p>
+          <p id="section-12-4.3.1">Add CPaceOQUAKE+ as an External PAKE using External PSK Import<a href="#section-12-4.3.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-12-5">Since draft-bmw-tls-pake13-02<a href="#section-12-5" class="pilcrow">¶</a></p>
+<p id="section-12-5">Since draft-ietf-tls-pake-00<a href="#section-12-5" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-12-6.1">
-          <p id="section-12-6.1.1">Updated boilerplate after WG adoption<a href="#section-12-6.1.1" class="pilcrow">¶</a></p>
+          <p id="section-12-6.1.1">Add CPace as a second PAKE instantiation<a href="#section-12-6.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-6.2">
+          <p id="section-12-6.2.1">Require PAKE protocols to complete in exactly two messages
+(ClientHello and ServerHello)<a href="#section-12-6.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-6.3">
+          <p id="section-12-6.3.1">Require PAKE protocols to support key confirmation via TLS 1.3
+Finished messages<a href="#section-12-6.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-6.4">
+          <p id="section-12-6.4.1">Clarify server behavior when both pake and pre_shared_key
+extensions are present: server <span class="bcp14">MUST</span> select authentication
+mechanism based on preference, not client identity recognition<a href="#section-12-6.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-6.5">
+          <p id="section-12-6.5.1">Add explicit requirement that server <span class="bcp14">MUST</span> send missing_extension
+alert if pake extension is present without key_share and
+supported_groups extensions<a href="#section-12-6.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-6.6">
+          <p id="section-12-6.6.1">Specify that SPAKE2+ Context string <span class="bcp14">MUST</span> be prefixed with "tls"
+to prevent cross-protocol attacks<a href="#section-12-6.6.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-12-7">Since draft-bmw-tls-pake13-01<a href="#section-12-7" class="pilcrow">¶</a></p>
+<p id="section-12-7">Since draft-bmw-tls-pake13-02<a href="#section-12-7" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-12-8.1">
-          <p id="section-12-8.1.1">Require standard TLS Key exchange to be combined with pake<a href="#section-12-8.1.1" class="pilcrow">¶</a></p>
+          <p id="section-12-8.1.1">Updated boilerplate after WG adoption<a href="#section-12-8.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-12-8.2">
-          <p id="section-12-8.2.1">Allow combining PAKEs and certificates<a href="#section-12-8.2.1" class="pilcrow">¶</a></p>
+      </ul>
+<p id="section-12-9">Since draft-bmw-tls-pake13-01<a href="#section-12-9" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-12-10.1">
+          <p id="section-12-10.1.1">Require standard TLS Key exchange to be combined with pake<a href="#section-12-10.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-12-10.2">
+          <p id="section-12-10.2.1">Allow combining PAKEs and certificates<a href="#section-12-10.2.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
