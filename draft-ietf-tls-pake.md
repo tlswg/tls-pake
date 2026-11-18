@@ -15,7 +15,7 @@ venue:
     arch: "https://mailarchive.ietf.org/arch/browse/tls/"
     github: "tlswg/tls-pake"
     latest: "https://tlswg.org/tls-pake/draft-ietf-tls-pake.html"
-v: 0
+v: 3
 keyword: Internet-Draft
 
 stand_alone: yes
@@ -243,7 +243,7 @@ following options:
 
 If a client sends the `pake` extension, then it MUST also send a `supported_groups` and
 `key_share` extension. Like PSK-based authentication in psk_dhe_ke mode as defined in
-{{Section 4.2.0 of !TLS13=RFC9846}}, authentication with the `pake` extension
+{{Section 4.3.9 of !TLS13=RFC9846}}, authentication with the `pake` extension
 is always combined with the normal TLS key exchange mechanism. See {{key-sched-mods}} for details.
 
 Combining the `pake` extension with the normal TLS key exchange mechanism
@@ -391,9 +391,8 @@ TLS must provide the following details:
 Several current PAKE protocols satisfy these requirements for Internal PAKE usage,
 for example:
 
-* CPace {{!CPACE=I-D.irtf-cfrg-cpace}}
-* SPAKE2+ (described in {{!SPAKE2PLUS=RFC9383}}
-* OPAQUE {{?OPAQUE=I-D.irtf-cfrg-opaque}}
+* CPace (described in {{cpace}}) {{CPACE}}
+* SPAKE2+ (described in {{spake2plus}}) {{SPAKE2PLUS}}
 * OQUAKE (described in {{oquake}}) {{PQPAKE}}
 * OQUAKE+ (described in {{oquakeplus}}) {{PQPAKE}}
 
@@ -443,7 +442,7 @@ exchanged over the wire, or computed by client and server.
 Using `K_main`, the client and server both compute `K_shared` which is combined with the
 `(EC)DHE` shared secret as input to the TLS 1.3 key schedule, where the (EC)DHE shared
 secret is as specified in {{Section 7.1 of !TLS13=RFC9846}} or as the `concatenated_shared_secret`
-as specified in {{Section 3.3 of !I-D.ietf-tls-hybrid-design}}. Specifically, `K_shared || (EC)DHE` is used
+as specified in {{Section 3.3 of !RFC9954}}. Specifically, `K_shared || (EC)DHE` is used
 as the `(EC)DHE` input to the key schedule in {{Section 7.1 of !TLS13=RFC9846}}, as shown below.
 
 ~~~
@@ -522,7 +521,7 @@ will contribute to the derivation of `ISK`.
 The client and server both combine `ISK` with the `(EC)DHE` shared secret as
 input to the TLS 1.3 key schedule, where the (EC)DHE shared secret is as
 specified in {{Section 7.1 of !TLS13=RFC9846}} or as the
-`concatenated_shared_secret` as specified in {{Section 3.3 of !I-D.ietf-tls-hybrid-design}}.
+`concatenated_shared_secret` as specified in {{Section 3.3 of !RFC9954}}.
 Specifically, `ISK || (EC)DHE` is used as the `(EC)DHE` input to the key
 schedule in {{Section 7.1 of !TLS13=RFC9846}}, as shown above in {{spake2plus-run}}.
 
@@ -562,7 +561,7 @@ clients SHOULD abort the handshake with a "decrypt_error" alert.
 The client and server both combine `SK` with the `(EC)DHE` shared secret as
 input to the TLS 1.3 key schedule, where the (EC)DHE shared secret is as
 specified in {{Section 7.1 of !TLS13=RFC9846}} or as the
-`concatenated_shared_secret` as specified in {{Section 3.3 of !I-D.ietf-tls-hybrid-design}}.
+`concatenated_shared_secret` as specified in {{Section 3.3 of !RFC9954}}.
 Specifically, `SK || (EC)DHE` is used as the `(EC)DHE` input to the key
 schedule in {{Section 7.1 of !TLS13=RFC9846}}, as shown above in {{spake2plus-run}}.
 
@@ -637,7 +636,8 @@ the client derives its shared secret by invoking `OQUAKE+.Finish`, as
 specified in {{Section 9.2.3 of PQPAKE}}:
 
 ~~~
-client_key, response = OQUAKE+.Finish(state, seed, resp_msg, public_context)
+client_key, response = OQUAKE+.Finish(state, seed, resp_msg,
+                                      public_context)
 ~~~
 
 Here, `state` is the opaque state produced by the client's earlier call to
@@ -656,7 +656,7 @@ The client and server both combine their PAKE shared secret (`client_key` and
 `server_key`, respectively) with the `(EC)DHE` shared secret as input to the
 TLS 1.3 key schedule, where the (EC)DHE shared secret is as
 specified in {{Section 7.1 of !TLS13=RFC9846}} or as the
-`concatenated_shared_secret` as specified in {{Section 3.3 of !I-D.ietf-tls-hybrid-design}}.
+`concatenated_shared_secret` as specified in {{Section 3.3 of !RFC9954}}.
 Specifically, `client_key || (EC)DHE` is used as the `(EC)DHE` input to the key
 schedule in {{Section 7.1 of !TLS13=RFC9846}}, as shown above in {{spake2plus-run}}.
 
@@ -809,7 +809,8 @@ Client                                Server
   |<-- OQUAKE+.Respond ----------------|
   | (both derive hybrid_secret)        |
   |                                    |
-  | (both: external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK", context))
+  | (both: external_psk = Import(hybrid_secret,
+  |        "TLS 1.3 CPaceOQUAKE+ PSK", context))
   |                                    |
   |-- TLS ClientHello ---------------->|
   |    (with PSK extension)            |
@@ -825,7 +826,8 @@ First, CPace executes. This consists of the following:
 
 ~~~
 - client_cpace_msg = CPace.Init(password, identities)
-- server_cpace_msg = CPace.Respond(client_cpace_msg, password, identities)
+- server_cpace_msg = CPace.Respond(client_cpace_msg, password,
+                                   identities)
 - cpace_isk = CPace.Finish(server_cpace_msg)  // Both parties derive ISK
 ~~~
 
@@ -833,9 +835,12 @@ Second, OQUAKE+ executes with the CPace context as input.
 This consists of the following:
 
 ~~~
-- client_oquake_msg = OQUAKE+.Init(verifier, context=cpace_isk, identities)
-- server_oquake_msg = OQUAKE+.Respond(client_oquake_msg, verifier, pk, context=cpace_isk)
-- hybrid_secret = OQUAKE+.Finish(server_oquake_msg)  // Both parties derive final secret
+- client_oquake_msg = OQUAKE+.Init(verifier, context=cpace_isk,
+                                   identities)
+- server_oquake_msg = OQUAKE+.Respond(client_oquake_msg, verifier,
+                                      pk, context=cpace_isk)
+- hybrid_secret = OQUAKE+.Finish(server_oquake_msg)
+  // Both parties derive final secret
 ~~~
 
 The CPace ISK serves as context input for OQUAKE+ per the sequential combiner
@@ -847,7 +852,8 @@ from the hybrid secret using {{?RFC9258}} External PSK Import.
 This consists of the following:
 
 ~~~
-- external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK", context) // From RFC9258
+- external_psk = Import(hybrid_secret, "TLS 1.3 CPaceOQUAKE+ PSK",
+                        context)  // From RFC9258
 - psk_identity = application_defined_identifier
 - Standard TLS 1.3 PSK handshake using (external_psk, psk_identity)
 ~~~
@@ -859,7 +865,7 @@ The External PSK Import uses the following parameters:
 - context: Application-provided context or empty string
 - hash: Hash function matching the TLS cipher suite
 
-The TLS integration uses standard TLS 1.3 PSK mechanisms per {{Section 4.2.11 of !TLS13=RFC9846}}.
+The TLS integration uses standard TLS 1.3 PSK mechanisms per {{Section 4.3.11 of !TLS13=RFC9846}}.
 The PSK identity can be application-defined, with session correlation handled at the
 application layer.
 
@@ -904,7 +910,7 @@ client enumeration may be a concern.
 
 Applications for which this leak is a problem can use the TLS Encrypted ClientHello
 (ECH) extension to encrypt the PAKEClientHello extension in transit to the server
-{{?ECH=I-D.ietf-tls-esni}}.
+{{?ECH=RFC9849}}.
 
 # Security Considerations {#security}
 
